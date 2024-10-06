@@ -15,18 +15,14 @@ const ObjectiveFunction = () => (
 const Contact = () => (
   <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
-      <h2 className="text-3xl font-bold mb-4">Contact</h2>
-      <p>
-        Connect with us on{' '}
-        <a
-          href="https://x.com/_______seven7s"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-300 hover:underline"
-        >
-          X
-        </a>
-      </p>
+      <a
+        href="https://x.com/_______seven7s"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-6xl font-bold text-blue-300 hover:text-blue-400 transition-colors"
+      >
+        X
+      </a>
     </div>
   </div>
 );
