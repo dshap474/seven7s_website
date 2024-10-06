@@ -27,7 +27,7 @@ function App() {
             <div className="flex space-x-7">
               <div>
                 <a href="#" className="flex items-center py-4 px-2">
-                  <span className="font-semibold text-gray-500 text-lg">Financial Dashboard</span>
+                  <span className="font-semibold text-gray-500 text-lg">Seven7s Dashboard</span>
                 </a>
               </div>
             </div>
