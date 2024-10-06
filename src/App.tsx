@@ -1,23 +1,36 @@
-import { useState } from 'react'
-import { BarChart, BookOpen, Info, Mail, PieChart } from 'lucide-react'
+import { useState } from 'react';
+import { BarChart, Info, Mail } from 'lucide-react';
 
 // Placeholder components for each tab
-const Blog = () => <div className="p-4">Blog content goes here</div>
-const Research = () => <div className="p-4">Research content goes here</div>
-const Analytics = () => <div className="p-4">Analytics content goes here</div>
-const About = () => <div className="p-4">About content goes here</div>
-const Contact = () => <div className="p-4">Contact content goes here</div>
+const About = () => <div className="p-4">About content goes here</div>;
+
+const Contact = () => (
+  <div className="p-4">
+    <h2 className="text-xl font-bold mb-4">Contact</h2>
+    <p>
+      Connect with us on{' '}
+      <a
+        href="https://x.com/_______seven7s"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:underline"
+      >
+        X
+      </a>
+    </p>
+  </div>
+);
+
+const Dashboard = () => <div className="p-4">Dashboard content goes here</div>;
 
 const tabs = [
-  { name: 'Blog', icon: BookOpen, component: Blog },
-  { name: 'Research', icon: PieChart, component: Research },
-  { name: 'Analytics', icon: BarChart, component: Analytics },
+  { name: 'Dashboard', icon: BarChart, component: Dashboard },
   { name: 'About', icon: Info, component: About },
   { name: 'Contact', icon: Mail, component: Contact },
-]
+];
 
 function App() {
-  const [activeTab, setActiveTab] = useState('Blog')
+  const [activeTab, setActiveTab] = useState('Dashboard');
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -52,11 +65,11 @@ function App() {
 
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {tabs.find(tab => tab.name === activeTab)?.component()}
+          {tabs.find((tab) => tab.name === activeTab)?.component()}
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
