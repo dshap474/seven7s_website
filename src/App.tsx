@@ -28,7 +28,7 @@ const Contact = () => (
   </div>
 );
 
-const Dashboard = () => <div className="p-4">Dashboard content goes here</div>;
+const Analytics = () => <div className="p-4">Analytics content goes here</div>;
 
 const LaunchPage = () => (
   <div className="bg-black flex items-center justify-center h-full">
@@ -38,8 +38,8 @@ const LaunchPage = () => (
 
 const tabs = [
   { name: 'Launch', icon: Home, component: LaunchPage },
-  { name: 'Dashboard', icon: BarChart, component: Dashboard },
   { name: 'About', icon: Info, component: About },
+  { name: 'Analytics', icon: BarChart, component: Analytics },
   { name: 'Contact', icon: Mail, component: Contact },
 ];
 
@@ -48,11 +48,11 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="bg-gray-300 shadow-lg">
+      <header className="bg-[#8E8E93] shadow-lg"> {/* Space Gray color */}
         <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
           <button
             onClick={() => setActiveTab('Launch')}
-            className="text-2xl font-bold text-gray-900 hover:text-gray-700"
+            className="text-2xl font-bold text-white hover:text-gray-200"
           >
             seven7s
           </button>
@@ -64,8 +64,8 @@ function App() {
                   onClick={() => setActiveTab(tab.name)}
                   className={`flex items-center px-3 py-2 text-sm font-medium ${
                     activeTab === tab.name
-                      ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-gray-700 hover:text-gray-900 hover:border-gray-300'
+                      ? 'text-blue-300 border-b-2 border-blue-300'
+                      : 'text-white hover:text-gray-200 hover:border-gray-200'
                   }`}
                 >
                   <tab.icon className="mr-2 h-5 w-5" />
