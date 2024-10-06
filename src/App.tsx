@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
 
-// Placeholder components for each tab
-const About = () => (
+// Updated Objective Function component
+const ObjectiveFunction = () => (
   <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
-      <h2 className="text-3xl font-bold mb-4">About</h2>
       <p className="max-w-2xl">
-        seven7s is an investment collective dedicated to achieving financial freedom through open-source collaboration.
+        seven7s is a collective of individuals participating in open-source collaboration with the objective of achieving escape velocity.
       </p>
     </div>
   </div>
@@ -51,7 +50,7 @@ const LaunchPage = () => (
 
 const tabs = [
   { name: 'Launch', icon: Home, component: LaunchPage },
-  { name: 'About', component: About },
+  { name: 'Objective Function', component: ObjectiveFunction },
   { name: 'Analytics', component: Analytics },
   { name: 'Contact', component: Contact },
 ];
