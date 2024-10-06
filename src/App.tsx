@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
 
 // Placeholder components for each tab
@@ -58,6 +58,10 @@ const tabs = [
 
 function App() {
   const [activeTab, setActiveTab] = useState('Launch');
+
+  useEffect(() => {
+    document.title = "seven7s";
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-black">
