@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BarChart, Info, Mail } from 'lucide-react';
 
 // Placeholder components for each tab
@@ -38,6 +38,21 @@ const tabs = [
 
 function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
+  const [showLaunchPage, setShowLaunchPage] = useState(true);
+
+  useEffect(() => {
+    // Hide launch page after 3 seconds
+    const timer = setTimeout(() => setShowLaunchPage(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showLaunchPage) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <h1 className="text-6xl font-bold text-white">seven7s</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
