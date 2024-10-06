@@ -3,7 +3,7 @@ import { Home } from 'lucide-react';
 
 // Placeholder components for each tab
 const About = () => (
-  <div className="text-white h-full flex items-center justify-center">
+  <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">About</h2>
       <p className="max-w-2xl">
@@ -14,7 +14,7 @@ const About = () => (
 );
 
 const Contact = () => (
-  <div className="text-white h-full flex items-center justify-center">
+  <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">Contact</h2>
       <p>
@@ -33,7 +33,7 @@ const Contact = () => (
 );
 
 const Analytics = () => (
-  <div className="text-white h-full flex items-center justify-center">
+  <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
       <p>Analytics content goes here</p>
@@ -65,8 +65,8 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-black">
-      <header className="bg-black">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+      <header className="bg-black h-16 flex items-center">
+        <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center">
           <button
             onClick={() => setActiveTab('Launch')}
             className="text-2xl font-bold text-white hover:text-gray-200"
