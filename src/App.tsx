@@ -60,8 +60,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('Launch');
 
   return (
-    <div className="flex flex-col h-screen">
-      <header className="bg-black shadow-lg">
+    <div className="flex flex-col h-screen bg-black">
+      <header className="bg-black">
         <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
           <button
             onClick={() => setActiveTab('Launch')}
@@ -91,7 +91,7 @@ function App() {
 
       <div className="h-1 bg-[#8E8E93]"></div>
 
-      <main className="flex-grow">
+      <main className="flex-grow overflow-hidden">
         {tabs.find((tab) => tab.name === activeTab)?.component()}
       </main>
     </div>
