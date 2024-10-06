@@ -43,7 +43,9 @@ const Analytics = () => (
 
 const LaunchPage = () => (
   <div className="bg-black flex items-center justify-center h-full">
-    <h1 className="text-6xl font-bold text-white">seven7s</h1>
+    <h1 className="text-6xl font-bold text-white">
+      seven<span style={{ color: '#00FF00' }}>7</span>s
+    </h1>
   </div>
 );
 
@@ -65,7 +67,7 @@ function App() {
             onClick={() => setActiveTab('Launch')}
             className="text-2xl font-bold text-white hover:text-gray-200"
           >
-            seven7s
+            seven<span style={{ color: '#00FF00' }}>7</span>s
           </button>
           <nav>
             <div className="flex space-x-4">
