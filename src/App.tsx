@@ -3,7 +3,7 @@ import { Home } from 'lucide-react';
 
 // Placeholder components for each tab
 const About = () => (
-  <div className="bg-black text-white h-full flex items-center justify-center">
+  <div className="text-white h-full flex items-center justify-center">
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">About</h2>
       <p className="max-w-2xl">
@@ -14,7 +14,7 @@ const About = () => (
 );
 
 const Contact = () => (
-  <div className="bg-black text-white h-full flex items-center justify-center">
+  <div className="text-white h-full flex items-center justify-center">
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">Contact</h2>
       <p>
@@ -33,7 +33,7 @@ const Contact = () => (
 );
 
 const Analytics = () => (
-  <div className="bg-black text-white h-full flex items-center justify-center">
+  <div className="text-white h-full flex items-center justify-center">
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
       <p>Analytics content goes here</p>
@@ -42,7 +42,7 @@ const Analytics = () => (
 );
 
 const LaunchPage = () => (
-  <div className="bg-black flex items-center justify-center h-full">
+  <div className="flex items-center justify-center h-full">
     <h1 className="text-6xl font-bold text-white">
       seven<span style={{ color: '#00FF00' }}>7</span>s
     </h1>
@@ -95,8 +95,10 @@ function App() {
 
       <div className="h-1 bg-[#8E8E93]"></div>
 
-      <main className="flex-grow overflow-hidden">
-        {tabs.find((tab) => tab.name === activeTab)?.component()}
+      <main className="flex-grow bg-black overflow-hidden">
+        <div className="h-full">
+          {tabs.find((tab) => tab.name === activeTab)?.component()}
+        </div>
       </main>
     </div>
   );
