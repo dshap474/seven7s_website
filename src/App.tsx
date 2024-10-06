@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { BarChart, Info, Mail } from 'lucide-react';
+import { useState } from 'react';
+import { BarChart, Info, Mail, Home } from 'lucide-react';
 
 // Placeholder components for each tab
 const About = () => (
@@ -30,50 +30,42 @@ const Contact = () => (
 
 const Dashboard = () => <div className="p-4">Dashboard content goes here</div>;
 
+const LaunchPage = () => (
+  <div className="min-h-screen bg-black flex items-center justify-center">
+    <h1 className="text-6xl font-bold text-white">seven7s</h1>
+  </div>
+);
+
 const tabs = [
+  { name: 'Launch', icon: Home, component: LaunchPage },
   { name: 'Dashboard', icon: BarChart, component: Dashboard },
   { name: 'About', icon: Info, component: About },
   { name: 'Contact', icon: Mail, component: Contact },
 ];
 
 function App() {
-  const [activeTab, setActiveTab] = useState('Dashboard');
-  const [showLaunchPage, setShowLaunchPage] = useState(true);
-
-  useEffect(() => {
-    // Hide launch page after 3 seconds
-    const timer = setTimeout(() => setShowLaunchPage(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (showLaunchPage) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <h1 className="text-6xl font-bold text-white">seven7s</h1>
-      </div>
-    );
-  }
+  const [activeTab, setActiveTab] = useState('Launch');
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">seven7s</h1>
-        </div>
-      </header>
-
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between">
+      <header className="bg-gray-300 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+          <button
+            onClick={() => setActiveTab('Launch')}
+            className="text-2xl font-bold text-gray-900 hover:text-gray-700"
+          >
+            seven7s
+          </button>
+          <nav>
             <div className="flex space-x-4">
-              {tabs.map((tab) => (
+              {tabs.slice(1).map((tab) => (
                 <button
                   key={tab.name}
                   onClick={() => setActiveTab(tab.name)}
                   className={`flex items-center px-3 py-2 text-sm font-medium ${
                     activeTab === tab.name
                       ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'text-gray-700 hover:text-gray-900 hover:border-gray-300'
                   }`}
                 >
                   <tab.icon className="mr-2 h-5 w-5" />
@@ -81,9 +73,9 @@ function App() {
                 </button>
               ))}
             </div>
-          </div>
+          </nav>
         </div>
-      </nav>
+      </header>
 
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
