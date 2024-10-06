@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
+import axios from 'axios';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -27,14 +28,54 @@ const Contact = () => (
   </div>
 );
 
-const Analytics = () => (
-  <div className="text-white flex items-center justify-center h-full">
-    <div className="text-center">
+const Analytics = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://your-dash-app-url/api/data');
+        setData(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div className="text-white flex flex-col items-center justify-center h-full">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
-      <p>Analytics content goes here</p>
+      {loading ? (
+        <p>Loading data...</p>
+      ) : (
+        <div className="w-full max-w-4xl">
+          {data && (
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold mb-2">Data Summary</h3>
+              <pre className="bg-gray-800 p-4 rounded">
+                {JSON.stringify(data, null, 2)}
+              </pre>
+            </div>
+          )}
+          <div className="w-full h-[600px]">
+            <iframe
+              src="http://your-dash-app-url/dashboard"
+              title="Dash Dashboard"
+              width="100%"
+              height="100%"
+              style={{ border: 'none' }}
+            />
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const LaunchPage = () => (
   <div className="flex items-center justify-center h-full">
