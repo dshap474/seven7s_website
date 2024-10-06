@@ -7,7 +7,7 @@ const About = () => (
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">About</h2>
       <p className="max-w-2xl">
-        seven7s is an investment collective where participants believe together they can reach financial freedom faster than separately
+        seven7s is an investment collective dedicated to achieving financial freedom through open-source collaboration.
       </p>
     </div>
   </div>
