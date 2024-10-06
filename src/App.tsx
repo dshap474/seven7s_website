@@ -2,7 +2,14 @@ import { useState } from 'react';
 import { BarChart, Info, Mail } from 'lucide-react';
 
 // Placeholder components for each tab
-const About = () => <div className="p-4">About content goes here</div>;
+const About = () => (
+  <div className="p-4">
+    <h2 className="text-xl font-bold mb-4">About</h2>
+    <p>
+      seven7s is an investment collective where participants believe together they can reach financial freedom faster than separately
+    </p>
+  </div>
+);
 
 const Contact = () => (
   <div className="p-4">
