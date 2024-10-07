@@ -1,5 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -31,14 +53,84 @@ const Contact = () => (
   </div>
 );
 
-const Analytics = () => (
-  <div className="text-white flex items-center justify-center h-full">
-    <div className="text-center">
+const Analytics = () => {
+  const [data, setData] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    fetch('/dashboard_json_data/data.json')
+      .then(response => response.json())
+      .then(jsonData => {
+        setData(jsonData);
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+
+  const prepareChartData = (dataArray: any[]) => {
+    const labels = dataArray.map((item: any) => item.date);
+    const values = dataArray.map((item: any) => item.total_dollar_oi);
+    return { labels, values };
+  };
+
+  return (
+    <div className="text-white flex flex-col items-center justify-center h-full overflow-y-auto p-4">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
-      <p>Analytics content goes here</p>
+      
+      {Object.keys(data).length === 0 ? (
+        <p>Loading data...</p>
+      ) : (
+        Object.entries(data).map(([key, value]) => {
+          if (Array.isArray(value) && value.length > 0 && 'date' in value[0] && 'total_dollar_oi' in value[0]) {
+            const { labels, values } = prepareChartData(value);
+            return (
+              <div key={key} className="w-full max-w-3xl mb-8">
+                <h3 className="text-xl font-semibold mb-2">{key}</h3>
+                <Line
+                  data={{
+                    labels: labels,
+                    datasets: [
+                      {
+                        label: key,
+                        data: values,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        position: 'top' as const,
+                      },
+                      title: {
+                        display: true,
+                        text: key,
+                      },
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: false,
+                        ticks: {
+                          callback: function(value: number | string) {
+                            if (typeof value === 'number') {
+                              return (value / 1e9).toFixed(2) + 'B';
+                            }
+                            return value;
+                          }
+                        }
+                      }
+                    }
+                  }}
+                />
+              </div>
+            );
+          }
+          return null;
+        })
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const LaunchPage = () => (
   <div className="flex items-center justify-center h-full">
