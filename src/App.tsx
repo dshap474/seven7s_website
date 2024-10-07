@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import axios from 'axios';
 
 // Updated Objective Function component
@@ -29,17 +30,34 @@ const Contact = () => (
 );
 
 const Analytics = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('your-api-endpoint');
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <div className="text-white flex flex-col items-center justify-center h-full w-full">
+    <div className="text-white flex flex-col items-center justify-center h-full w-full p-4">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
-      <div className="w-full h-[calc(100vh-120px)]"> {/* Adjust height as needed */}
-        <iframe
-          src="http://127.0.0.1:8050/"
-          title="Dash Dashboard"
-          width="100%"
-          height="100%"
-          style={{ border: 'none' }}
-        />
+      <div className="w-full max-w-4xl">
+        <LineChart width={600} height={300} data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+        </LineChart>
+        {/* Add more charts and analytics components as needed */}
       </div>
     </div>
   );
