@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import axios from 'axios';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -17,51 +15,30 @@ const ObjectiveFunction = () => (
 const Contact = () => (
   <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
-      <a
-        href="https://x.com/_______seven7s"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-6xl font-bold text-blue-300 hover:text-blue-400 transition-colors"
-      >
-        X
-      </a>
+      <h2 className="text-3xl font-bold mb-4">Contact</h2>
+      <p>
+        Connect with us on{' '}
+        <a
+          href="https://x.com/_______seven7s"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-300 hover:underline"
+        >
+          X
+        </a>
+      </p>
     </div>
   </div>
 );
 
-const Analytics = () => {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('your-api-endpoint');
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  return (
-    <div className="text-white flex flex-col items-center justify-center h-full w-full p-4">
+const Analytics = () => (
+  <div className="text-white flex items-center justify-center h-full">
+    <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
-      <div className="w-full max-w-4xl">
-        <LineChart width={600} height={300} data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="value" stroke="#8884d8" />
-        </LineChart>
-        {/* Add more charts and analytics components as needed */}
-      </div>
+      <p>Analytics content goes here</p>
     </div>
-  );
-};
+  </div>
+);
 
 const LaunchPage = () => (
   <div className="flex items-center justify-center h-full">
