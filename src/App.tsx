@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
-import TradingViewChart from './components/TradingViewChart';
+
 import { prepareChartData } from './utils/chartUtils';
 // ... rest of the file
 
@@ -53,7 +53,7 @@ const Analytics = () => {
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
       {chartData.length > 0 ? (
         <div className="w-full max-w-3xl">
-          <TradingViewChart data={chartData} />
+
         </div>
       ) : (
         <p>Loading data...</p>
