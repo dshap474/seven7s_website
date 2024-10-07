@@ -53,7 +53,22 @@ const Analytics = () => {
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
       {chartData.length > 0 ? (
         <div className="w-full max-w-3xl">
-
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                <th className="border border-gray-600 px-4 py-2">Date</th>
+                <th className="border border-gray-600 px-4 py-2">Altcoin Open Interest</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chartData.map((item, index) => (
+                <tr key={index}>
+                  <td className="border border-gray-600 px-4 py-2">{item.time}</td>
+                  <td className="border border-gray-600 px-4 py-2">{item.value.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <p>Loading data...</p>
