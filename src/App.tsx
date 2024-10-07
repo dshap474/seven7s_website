@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
-
-import { prepareChartData } from './utils/chartUtils';
-// ... rest of the file
-
-// Register Chart.js components
-// Removed Chart.js related imports
+import axios from 'axios';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -21,58 +16,31 @@ const ObjectiveFunction = () => (
 const Contact = () => (
   <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
-      <h2 className="text-3xl font-bold mb-4">Contact</h2>
-      <p>
-        Connect with us on{' '}
-        <a
-          href="https://x.com/_______seven7s"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-300 hover:underline"
-        >
-          X
-        </a>
-      </p>
+      <a
+        href="https://x.com/_______seven7s"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-6xl font-bold text-blue-300 hover:text-blue-400 transition-colors"
+      >
+        X
+      </a>
     </div>
   </div>
 );
 
 const Analytics = () => {
-  const [chartData, setChartData] = useState<{ time: string; value: number }[]>([]);
-
-  useEffect(() => {
-    async function fetchData() {
-      const data = await prepareChartData('Altcoin Open Interest.csv');
-      setChartData(data);
-    }
-    fetchData();
-  }, []);
-
   return (
-    <div className="text-white flex flex-col items-center justify-center h-full overflow-y-auto p-4">
+    <div className="text-white flex flex-col items-center justify-center h-full w-full">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
-      {chartData.length > 0 ? (
-        <div className="w-full max-w-3xl">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="border border-gray-600 px-4 py-2">Date</th>
-                <th className="border border-gray-600 px-4 py-2">Altcoin Open Interest</th>
-              </tr>
-            </thead>
-            <tbody>
-              {chartData.map((item, index) => (
-                <tr key={index}>
-                  <td className="border border-gray-600 px-4 py-2">{item.time}</td>
-                  <td className="border border-gray-600 px-4 py-2">{item.value.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p>Loading data...</p>
-      )}
+      <div className="w-full h-[calc(100vh-120px)]"> {/* Adjust height as needed */}
+        <iframe
+          src="http://127.0.0.1:8050/"
+          title="Dash Dashboard"
+          width="100%"
+          height="100%"
+          style={{ border: 'none' }}
+        />
+      </div>
     </div>
   );
 };
