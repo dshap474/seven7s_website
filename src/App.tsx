@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
-import axios from 'axios';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
