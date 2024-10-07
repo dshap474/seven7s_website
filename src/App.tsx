@@ -64,6 +64,15 @@ function App() {
 
   useEffect(() => {
     document.title = "seven7s";
+    
+    // Add favicon
+    const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+    if (!link) {
+      const newLink = document.createElement('link');
+      newLink.rel = 'icon';
+      document.head.appendChild(newLink);
+    }
+    link.href = '/7s.png';
   }, []);
 
   return (
