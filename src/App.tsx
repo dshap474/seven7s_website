@@ -65,14 +65,43 @@ function App() {
   useEffect(() => {
     document.title = "seven7s";
     
-    // Add favicon
-    const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-    if (!link) {
-      const newLink = document.createElement('link');
-      newLink.rel = 'icon';
-      document.head.appendChild(newLink);
+    // Add favicons for different scenarios
+    const favicons = [
+      { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon.png' },
+      { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon.png' },
+      { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/favicon.png' },
+      { rel: 'shortcut icon', href: '/favicon.png' },
+    ];
+
+    favicons.forEach(favicon => {
+      let link = document.querySelector(`link[rel='${favicon.rel}']${favicon.sizes ? `[sizes='${favicon.sizes}']` : ''}`) as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        Object.assign(link, favicon);
+        document.head.appendChild(link);
+      } else {
+        link.href = favicon.href;
+      }
+    });
+
+    // Update the main favicon
+    let mainFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+    if (!mainFavicon) {
+      mainFavicon = document.createElement('link');
+      mainFavicon.rel = 'icon';
+      document.head.appendChild(mainFavicon);
     }
-    link.href = '/favicon-32x32.png';
+    mainFavicon.href = '/favicon.png';
+    mainFavicon.type = 'image/png';
+
+    // Add web manifest
+    let manifestLink = document.querySelector("link[rel='manifest']") as HTMLLinkElement;
+    if (!manifestLink) {
+      manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+      document.head.appendChild(manifestLink);
+    }
+    manifestLink.href = '/site.webmanifest';
   }, []);
 
   return (
