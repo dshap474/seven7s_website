@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
-import Plotly from 'plotly.js-dist-min';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -29,42 +28,18 @@ const Contact = () => (
 );
 
 const Analytics = () => {
-  useEffect(() => {
-    // Load the CSV data and create the chart
-    fetch('/dashboard_data/Altcoin Open Interest.csv')
-      .then(response => response.text())
-      .then(csvData => {
-        const rows = csvData.split('\n').slice(1); // Skip header row
-        const data = rows.map(row => {
-          const [date, value] = row.split(',');
-          return { date: new Date(date), value: parseFloat(value) };
-        });
-
-        const trace = {
-          x: data.map(d => d.date),
-          y: data.map(d => d.value),
-          type: 'scatter',
-          mode: 'lines',
-          name: 'Altcoin Open Interest',
-        };
-
-        const layout = {
-          title: 'Altcoin Open Interest Over Time',
-          xaxis: { title: 'Date' },
-          yaxis: { title: 'Open Interest (USD)' },
-          font: { color: '#ffffff' },
-          paper_bgcolor: 'rgba(0,0,0,0)',
-          plot_bgcolor: 'rgba(0,0,0,0)',
-        };
-
-        Plotly.newPlot('altcoinChart', [trace], layout);
-      });
-  }, []);
-
   return (
     <div className="text-white flex flex-col items-center justify-center h-full w-full">
       <h2 className="text-3xl font-bold mb-4">Analytics</h2>
-      <div id="altcoinChart" className="w-full h-[calc(100vh-120px)]"></div>
+      <div className="w-full h-[calc(100vh-120px)]"> {/* Adjust height as needed */}
+        <iframe
+          src="http://127.0.0.1:8050/"
+          title="Dash Dashboard"
+          width="100%"
+          height="100%"
+          style={{ border: 'none' }}
+        />
+      </div>
     </div>
   );
 };
