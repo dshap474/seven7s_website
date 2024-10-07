@@ -72,7 +72,7 @@ function App() {
       newLink.rel = 'icon';
       document.head.appendChild(newLink);
     }
-    link.href = '/7s.png';
+    link.href = '/favicon-32x32.png';
   }, []);
 
   return (
