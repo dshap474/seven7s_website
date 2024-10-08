@@ -109,7 +109,7 @@ const Analytics: React.FC = () => {
       <h1 className="text-2xl font-bold mb-4">Analytics Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(data).map(([key, value]) => (
-          <div key={key} className="bg-gray-800 p-4 rounded-lg h-[600px]">
+          <div key={key} className="bg-[#191919] p-4 rounded-lg h-[600px]">
             <h2 className="text-xl font-semibold mb-2">{key.replace(/_/g, ' ')}</h2>
             <div className="h-[calc(100%-2rem)]">
               <DataChart data={value} title={key.replace(/_/g, ' ')} />
@@ -135,23 +135,23 @@ function App() {
   useEffect(() => {
     document.title = "seven7s";
     
-    // Add favicon
+    // Add favicon with rounded corners
     let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (!link) {
       link = document.createElement('link');
       link.rel = 'icon';
       document.head.appendChild(link);
     }
-    link.href = '/7s_text.png';
+    link.href = '/7s_gradient_rounded.png';
 
-    // Add apple touch icon
+    // Add apple touch icon with rounded corners
     let appleLink = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement;
     if (!appleLink) {
       appleLink = document.createElement('link');
       appleLink.rel = 'apple-touch-icon';
       document.head.appendChild(appleLink);
     }
-    appleLink.href = '/7s_text.png';
+    appleLink.href = '/7s_gradient_rounded.png';
 
     // Add web manifest
     let manifestLink = document.querySelector("link[rel='manifest']") as HTMLLinkElement;
@@ -195,8 +195,8 @@ function App() {
 
       <div className="h-1 bg-[#8E8E93]"></div>
 
-      <main className="flex-grow bg-black overflow-y-auto">
-        <div className="h-full">
+      <main className="flex-grow bg-black overflow-hidden">
+        <div className="h-full overflow-y-auto">
           {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
         </div>
       </main>

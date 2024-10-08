@@ -61,8 +61,8 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           const value = Object.values(item).find(val => typeof val === 'number' && val !== item.btc_price);
           return value !== undefined ? value : null;
         }),
-        borderColor: 'rgb(0, 255, 0)',
-        backgroundColor: 'rgba(0, 255, 0, 0.1)',
+        borderColor: 'rgb(0, 255, 255)',
+        backgroundColor: 'rgba(0, 255, 255, 0.1)',
         tension: 0.1,
         yAxisID: 'y',
         pointRadius: 0,
