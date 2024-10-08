@@ -104,8 +104,8 @@ const Dashboard: React.FC = () => {
               x: data.map(item => item.date),
               y: data.map(item => item.value),
               type: 'scatter',
-              mode: 'lines+markers',
-              marker: { color: '#00FF00' },
+              mode: 'lines',
+              line: { color: '#00FF00', width: 2 },
             },
           ]}
           layout={{
@@ -113,8 +113,22 @@ const Dashboard: React.FC = () => {
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             font: { color: '#FFFFFF' },
-            xaxis: { title: 'Date' },
-            yaxis: { title: 'Open Interest' },
+            xaxis: {
+              title: 'Date',
+              color: '#FFFFFF',
+              showgrid: false,
+              zeroline: false,
+              ticks: 'inside',
+              linecolor: '#FFFFFF',
+            },
+            yaxis: {
+              title: 'Open Interest',
+              color: '#FFFFFF',
+              showgrid: false,
+              zeroline: false,
+              ticks: 'inside',
+              linecolor: '#FFFFFF',
+            },
           }}
           style={{ width: '100%', height: '100%' }}
         />
