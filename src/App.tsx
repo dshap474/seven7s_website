@@ -52,10 +52,20 @@ const LaunchPage = () => (
   </div>
 );
 
+const Dashboard = () => (
+  <div className="text-white flex items-center justify-center h-full">
+    <div className="text-center">
+      <h2 className="text-3xl font-bold mb-4">Dashboard</h2>
+      <p>Welcome to the Dashboard. Content coming soon.</p>
+    </div>
+  </div>
+);
+
 const tabs = [
   { name: 'Launch', icon: Home, component: LaunchPage },
   { name: 'Objective Function', component: ObjectiveFunction },
   { name: 'Analytics', component: Analytics },
+  { name: 'Dashboard', component: Dashboard },
   { name: 'Contact', component: Contact },
 ];
 
