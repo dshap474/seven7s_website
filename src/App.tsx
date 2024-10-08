@@ -93,13 +93,15 @@ const Dashboard: React.FC = () => {
   if (!data) return <div className="text-white">No data available</div>;
 
   return (
-    <div className="text-white p-4">
+    <div className="text-white p-4 overflow-y-auto h-full">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(data).map(([key, value]) => (
-          <div key={key} className="bg-gray-800 p-4 rounded-lg h-96">
+          <div key={key} className="bg-gray-800 p-4 rounded-lg h-[600px]">
             <h2 className="text-xl font-semibold mb-2">{key}</h2>
-            <DataChart data={value} title={key} />
+            <div className="h-[calc(100%-2rem)]">
+              <DataChart data={value} title={key} />
+            </div>
           </div>
         ))}
       </div>
@@ -191,7 +193,7 @@ function App() {
 
       <div className="h-1 bg-[#8E8E93]"></div>
 
-      <main className="flex-grow bg-black overflow-hidden">
+      <main className="flex-grow bg-black overflow-y-auto">
         <div className="h-full">
           {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
         </div>
