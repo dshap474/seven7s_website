@@ -1,124 +1,139 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import Crosshair from 'chartjs-plugin-crosshair';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Crosshair);
 
-interface DataPoint {
-  date: string;
+interface ChartData {
+  index: string;
   [key: string]: string | number;
+  btc_price: number;
 }
 
 interface DataChartProps {
-  data: DataPoint[];
+  data: ChartData[];
   title: string;
 }
 
 const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
-  const seriesName = Object.keys(data[0]).find(key => key !== 'date') || 'Value';
+  if (!data || data.length === 0) {
+    return <div>No data available for {title}</div>;
+  }
 
   const chartData = {
-    labels: data.map(item => item.date),
+    labels: data.map(item => item.index),
     datasets: [
       {
-        label: seriesName,
-        data: data.map(item => Object.values(item).find(val => typeof val === 'number')),
-        borderColor: 'rgb(0, 255, 0)', // Changed to green (0, 255, 0)
+        label: title,
+        data: data.map(item => {
+          const value = Object.values(item).find(val => typeof val === 'number' && val !== item.btc_price);
+          return value !== undefined ? value : null;
+        }),
+        borderColor: 'rgb(0, 255, 0)',
+        backgroundColor: 'rgba(0, 255, 0, 0.1)',
         tension: 0.1,
-        fill: false,
-        pointRadius: 0, // Remove points
+        yAxisID: 'y',
+        pointRadius: 0,
+        borderWidth: 2,
       },
-    ],
+      {
+        label: 'BTC Price',
+        data: data.map(item => item.btc_price),
+        borderColor: 'rgb(128, 128, 128)',
+        backgroundColor: 'rgba(128, 128, 128, 0.1)',
+        tension: 0.1,
+        yAxisID: 'y1',
+        pointRadius: 0,
+        borderWidth: 2,
+      }
+    ]
   };
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+    stacked: false,
     plugins: {
       legend: {
         position: 'top' as const,
-        align: 'end' as const,
-        labels: {
-          boxWidth: 12,
-          usePointStyle: true,
-          pointStyle: 'line',
-          padding: 20,
-          color: 'white', // Changed label color to white
-        },
       },
       title: {
         display: false,
+      },
+      tooltip: {
+        mode: 'index' as const,
+        intersect: false,
+      },
+      crosshair: {
+        line: {
+          color: 'rgb(128, 128, 128)',  // Gray color for crosshair
+          width: 1
+        },
+        sync: {
+          enabled: true,
+          group: 1,
+          suppressTooltips: false
+        },
+        zoom: {
+          enabled: false,
+        },
+        horizontal: {
+          enabled: true,
+          lineColor: 'rgb(128, 128, 128)',
+          lineWidth: 1,
+        },
       },
     },
     scales: {
       x: {
         ticks: {
-          autoSkip: true,
           maxTicksLimit: 10,
-          color: 'white', // Keep x-axis label color white
+          color: 'rgb(255, 255, 255)',
         },
-        position: 'bottom' as const,
         grid: {
-          display: true, // Show x-axis grid lines
-          color: 'rgba(128, 128, 128, 0.2)', // Light gray color for grid lines
+          color: 'rgba(128, 128, 128, 0.2)',
         },
         border: {
-          color: 'white', // Make x-axis line white
+          color: 'rgb(128, 128, 128)',
         },
       },
       y: {
-        beginAtZero: true,
+        type: 'linear' as const,
+        display: true,
+        position: 'left' as const,
         ticks: {
-          color: 'white', // Keep y-axis label color white
+          color: 'rgb(255, 255, 255)',
         },
         grid: {
-          display: true, // Show y-axis grid lines
-          color: 'rgba(128, 128, 128, 0.2)', // Light gray color for grid lines
+          color: 'rgba(128, 128, 128, 0.2)',
         },
         border: {
-          color: 'white', // Make y-axis line white
+          color: 'rgb(128, 128, 128)',
         },
       },
-    },
-    layout: {
-      padding: {
-        left: 10,
-        right: 10,
-        top: 10,  // Further reduced top padding
-        bottom: 30,  // Increased bottom padding to shift the chart upwards
-      },
-    },
-    elements: {
-      point: {
-        radius: 0, // Remove points
+      y1: {
+        type: 'linear' as const,
+        display: true,
+        position: 'right' as const,
+        ticks: {
+          color: 'rgb(255, 255, 255)',
+        },
+        grid: {
+          drawOnChartArea: false,
+          color: 'rgba(128, 128, 128, 0.2)',
+        },
+        border: {
+          color: 'rgb(128, 128, 128)',
+        },
       },
     },
   };
 
-  return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flexGrow: 1, minHeight: 0, marginTop: '-20px' }}>  {/* Added negative margin to shift chart up */}
-        <Line data={chartData} options={options} />
-      </div>
-    </div>
-  );
+  return <Line data={chartData} options={options} />;
 };
 
 export default DataChart;

@@ -28,19 +28,10 @@ const Contact = () => (
   </div>
 );
 
-const Analytics = () => {
+const Strategies = () => {
   return (
-    <div className="text-white flex flex-col items-center justify-center h-full w-full">
-      <h2 className="text-3xl font-bold mb-4">Analytics</h2>
-      <div className="w-full h-[calc(100vh-120px)]"> {/* Adjust height as needed */}
-        <iframe
-          src="http://127.0.0.1:8050/"
-          title="Dash Dashboard"
-          width="100%"
-          height="100%"
-          style={{ border: 'none' }}
-        />
-      </div>
+    <div className="text-white flex items-center justify-center h-full">
+      <h2 className="text-3xl font-bold">Trading strategies</h2>
     </div>
   );
 };
@@ -64,20 +55,39 @@ interface JSONData {
 
 import DataChart from './components/DataChart';
 
-const Dashboard: React.FC = () => {
-  const [data, setData] = useState<JSONData | null>(null);
+const Analytics: React.FC = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/dashboard_data/data.json');
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
+        const files = [
+          'total_oi.json',
+          'total_oi_normalized.json',
+          'altcoin_oi.json',
+          'altcoin_oi_normalized.json',
+          'altcoin_speculation_index.json',
+          'crypto_breadth_50D.json',
+          'crypto_breadth_20W.json',
+          'crypto_breadth_1Y.json',
+          'fear_greed_index.json',
+          'fear_greed_index_90D.json'
+        ];
+
+        const fetchedData: DashboardData = {};
+
+        for (const file of files) {
+          const response = await fetch(`/dashboard_data/${file}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch ${file}`);
+          }
+          const jsonData: ChartData[] = await response.json();
+          fetchedData[file.replace('.json', '')] = jsonData;
         }
-        const jsonData: JSONData = await response.json();
-        setData(jsonData);
+
+        setData(fetchedData);
       } catch (err) {
         setError(`Failed to load data: ${err instanceof Error ? err.message : String(err)}`);
       } finally {
@@ -94,13 +104,13 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="text-white p-4 overflow-y-auto h-full">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">Analytics Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(data).map(([key, value]) => (
           <div key={key} className="bg-gray-800 p-4 rounded-lg h-[600px]">
-            <h2 className="text-xl font-semibold mb-2">{key}</h2>
+            <h2 className="text-xl font-semibold mb-2">{key.replace(/_/g, ' ')}</h2>
             <div className="h-[calc(100%-2rem)]">
-              <DataChart data={value} title={key} />
+              <DataChart data={value} title={key.replace(/_/g, ' ')} />
             </div>
           </div>
         ))}
@@ -113,7 +123,7 @@ const tabs = [
   { name: 'Launch', icon: Home, component: LaunchPage },
   { name: 'Objective Function', component: ObjectiveFunction },
   { name: 'Analytics', component: Analytics },
-  { name: 'Dashboard', component: Dashboard },
+  { name: 'Strategies', component: Strategies },
   { name: 'Contact', component: Contact },
 ];
 
@@ -149,16 +159,6 @@ function App() {
       document.head.appendChild(manifestLink);
     }
     manifestLink.href = '/site.webmanifest';
-
-    // Check if data.json is accessible
-    fetch('/data.json')
-      .then(response => response.text())
-      .then(text => {
-        console.log('data.json content:', text);
-      })
-      .catch(error => {
-        console.error('Error fetching data.json:', error);
-      });
   }, []);
 
   return (
