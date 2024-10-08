@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('./dashboard_data/total_open_interest.csv');
+        const response = await fetch('/public/dashboard_data/total_open_interest.csv');
         const text = await response.text();
         const rows = text.split('\n').slice(1);
         const parsedData = rows
