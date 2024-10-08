@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
 import Plot from 'react-plotly.js';
 
@@ -58,18 +58,13 @@ interface DataPoint {
   value: number;
 }
 
-const Dashboard = () => {
-  const [data, setData] = useState<DataPoint[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const Dashboard: React.FC = () => {
+  const [data, setData] = React.useState<DataPoint[]>([]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch('/dashboard_data/total_open_interest.csv');
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
         const text = await response.text();
         const rows = text.split('\n').slice(1);
         const parsedData = rows
@@ -81,22 +76,11 @@ const Dashboard = () => {
         setData(parsedData);
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError('Failed to load data. Please try again later.');
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchData();
   }, []);
-
-  if (isLoading) {
-    return <div className="text-white">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-white">{error}</div>;
-  }
 
   return (
     <div className="text-white flex flex-col items-center justify-center h-full w-full">
@@ -124,7 +108,7 @@ const Dashboard = () => {
             style={{ width: '100%', height: '100%' }}
           />
         ) : (
-          <div className="text-white">No data available</div>
+          <div>Loading...</div>
         )}
       </div>
     </div>
@@ -207,7 +191,7 @@ function App() {
 
       <main className="flex-grow bg-black overflow-hidden">
         <div className="h-full">
-          {tabs.find((tab) => tab.name === activeTab)?.component()}
+          {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
         </div>
       </main>
     </div>
