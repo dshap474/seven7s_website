@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
-import Plot from 'react-plotly.js';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
   <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
       <p className="max-w-2xl">
-        seven7s is a collective of individuals participating in open-source collaboration with the objective of achieving escape velocity.
+        seven7s is a collective of individuals participating in open-source collaboration with the objective of achieving financial escape velocity.
       </p>
     </div>
   </div>
@@ -16,6 +15,7 @@ const ObjectiveFunction = () => (
 const Contact = () => (
   <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
+      <p className="text-2xl mb-4">Twitter:</p>
       <a
         href="https://x.com/_______seven7s"
         target="_blank"
@@ -55,83 +55,53 @@ const LaunchPage = () => (
 
 interface DataPoint {
   date: string;
-  value: number;
+  [key: string]: string | number;
 }
 
+interface JSONData {
+  [key: string]: DataPoint[];
+}
+
+import DataChart from '../components/DataChart';
+
 const Dashboard: React.FC = () => {
-  const [data, setData] = React.useState<DataPoint[]>([]);
-  const [error, setError] = React.useState<string | null>(null);
+  const [data, setData] = useState<JSONData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('Fetching data...');
-        const response = await fetch('/dashboard_data/total_open_interest.csv');
-        console.log('Response status:', response.status);
+        const response = await fetch('/dashboard_data/data.json');
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error('Failed to fetch data');
         }
-        const text = await response.text();
-        console.log('Data received:', text.slice(0, 100)); // Log first 100 characters
-        const rows = text.split('\n').slice(1);
-        const parsedData = rows
-          .filter(row => row.trim() !== '')
-          .map(row => {
-            const [date, value] = row.split(',');
-            return { date, value: parseFloat(value) };
-          });
-        setData(parsedData);
+        const jsonData: JSONData = await response.json();
+        setData(jsonData);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load data. Please try again later.');
+        setError(`Failed to load data: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  if (error) {
-    return <div className="text-white">{error}</div>;
-  }
+  if (loading) return <div className="text-white">Loading...</div>;
+  if (error) return <div className="text-white">Error: {error}</div>;
+  if (!data) return <div className="text-white">No data available</div>;
 
   return (
-    <div className="text-white flex flex-col items-center justify-center h-full w-full">
-      <h2 className="text-3xl font-bold mb-4">Dashboard</h2>
-      <div className="w-full h-[calc(100vh-120px)]">
-        <Plot
-          data={[
-            {
-              x: data.map(item => item.date),
-              y: data.map(item => item.value),
-              type: 'scatter',
-              mode: 'lines',
-              line: { color: '#00FF00', width: 2 },
-            },
-          ]}
-          layout={{
-            title: 'Total Open Interest',
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: '#FFFFFF' },
-            xaxis: {
-              title: 'Date',
-              color: '#FFFFFF',
-              showgrid: false,
-              zeroline: false,
-              ticks: 'inside',
-              linecolor: '#FFFFFF',
-            },
-            yaxis: {
-              title: 'Open Interest',
-              color: '#FFFFFF',
-              showgrid: false,
-              zeroline: false,
-              ticks: 'inside',
-              linecolor: '#FFFFFF',
-            },
-          }}
-          style={{ width: '100%', height: '100%' }}
-        />
+    <div className="text-white p-4">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Object.entries(data).map(([key, value]) => (
+          <div key={key} className="bg-gray-800 p-4 rounded-lg h-96">
+            <h2 className="text-xl font-semibold mb-2">{key}</h2>
+            <DataChart data={value} title={key} />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -177,6 +147,16 @@ function App() {
       document.head.appendChild(manifestLink);
     }
     manifestLink.href = '/site.webmanifest';
+
+    // Check if data.json is accessible
+    fetch('/data.json')
+      .then(response => response.text())
+      .then(text => {
+        console.log('data.json content:', text);
+      })
+      .catch(error => {
+        console.error('Error fetching data.json:', error);
+      });
   }, []);
 
   return (
