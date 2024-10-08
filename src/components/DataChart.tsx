@@ -19,7 +19,7 @@ interface DataChartProps {
 const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   const [showZScore, setShowZScore] = useState(false);
   const [zScoreWindow, setZScoreWindow] = useState(90);
-  const [zScoreData, setZScoreData] = useState<number[]>([]);
+  const [zScoreData, setZScoreData] = useState<(number | null)[]>([]);
   const [lookbackDays, setLookbackDays] = useState(365);
   const [useLookback, setUseLookback] = useState(true);
 
@@ -44,7 +44,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         return value !== undefined ? value : null;
       });
 
-      const fullZScoreData = calculateZScore(mainData, zScoreWindow);
+      const fullZScoreData = calculateZScore(mainData as (number | null)[], zScoreWindow);
       setZScoreData(fullZScoreData);
     }
   }, [showZScore, zScoreWindow, data]);

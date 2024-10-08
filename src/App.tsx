@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
+import DataChart from './components/DataChart';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -28,32 +29,33 @@ const Contact = () => (
   </div>
 );
 
-const Strategies = () => {
-  return (
-    <div className="text-white flex items-center justify-center h-full">
-      <h2 className="text-3xl font-bold">Trading strategies</h2>
-    </div>
-  );
-};
-
-const LaunchPage = () => (
-  <div className="flex items-center justify-center h-full">
-    <h1 className="text-6xl font-bold text-white">
-      seven<span style={{ color: '#00FF00' }}>7</span>s
-    </h1>
+const Strategies = () => (
+  <div className="text-white flex items-center justify-center h-full">
+    <h2 className="text-3xl font-bold">Trading strategies</h2>
   </div>
 );
 
-interface DataPoint {
-  date: string;
+const LaunchPage = () => (
+  <div className="relative flex flex-col items-center justify-center h-full overflow-hidden">
+    <div className="absolute inset-0 flex items-center justify-center">
+      <img 
+        src="/god_particle.png" 
+        alt="God Particle" 
+        className="w-[70%] h-[70%] object-contain"
+      />
+    </div>
+  </div>
+);
+
+interface ChartData {
+  index: string;
   [key: string]: string | number;
+  btc_price: number;
 }
 
-interface JSONData {
-  [key: string]: DataPoint[];
+interface DashboardData {
+  [key: string]: ChartData[];
 }
-
-import DataChart from './components/DataChart';
 
 const Analytics: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -169,7 +171,7 @@ function App() {
             onClick={() => setActiveTab('Launch')}
             className="text-2xl font-bold text-white hover:text-gray-200"
           >
-            seven<span style={{ color: '#00FF00' }}>7</span>s
+            seven<span style={{ color: 'rgb(0, 255, 255)' }}>7</span>s
           </button>
           <nav>
             <div className="flex space-x-4">
