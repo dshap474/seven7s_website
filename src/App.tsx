@@ -62,7 +62,7 @@ interface JSONData {
   [key: string]: DataPoint[];
 }
 
-import DataChart from '../components/DataChart';
+import DataChart from './components/DataChart';
 
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<JSONData | null>(null);
