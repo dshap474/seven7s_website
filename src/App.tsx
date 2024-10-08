@@ -60,12 +60,19 @@ interface DataPoint {
 
 const Dashboard: React.FC = () => {
   const [data, setData] = React.useState<DataPoint[]>([]);
+  const [error, setError] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/public/dashboard_data/total_open_interest.csv');
+        console.log('Fetching data...');
+        const response = await fetch('/dashboard_data/total_open_interest.csv');
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const text = await response.text();
+        console.log('Data received:', text.slice(0, 100)); // Log first 100 characters
         const rows = text.split('\n').slice(1);
         const parsedData = rows
           .filter(row => row.trim() !== '')
@@ -76,40 +83,41 @@ const Dashboard: React.FC = () => {
         setData(parsedData);
       } catch (err) {
         console.error('Error fetching data:', err);
+        setError('Failed to load data. Please try again later.');
       }
     };
 
     fetchData();
   }, []);
 
+  if (error) {
+    return <div className="text-white">{error}</div>;
+  }
+
   return (
     <div className="text-white flex flex-col items-center justify-center h-full w-full">
       <h2 className="text-3xl font-bold mb-4">Dashboard</h2>
       <div className="w-full h-[calc(100vh-120px)]">
-        {data.length > 0 ? (
-          <Plot
-            data={[
-              {
-                x: data.map(item => item.date),
-                y: data.map(item => item.value),
-                type: 'scatter',
-                mode: 'lines+markers',
-                marker: {color: '#00FF00'},
-              },
-            ]}
-            layout={{
-              title: 'Total Open Interest',
-              paper_bgcolor: 'rgba(0,0,0,0)',
-              plot_bgcolor: 'rgba(0,0,0,0)',
-              font: { color: '#FFFFFF' },
-              xaxis: { title: 'Date' },
-              yaxis: { title: 'Open Interest' },
-            }}
-            style={{ width: '100%', height: '100%' }}
-          />
-        ) : (
-          <div>Loading...</div>
-        )}
+        <Plot
+          data={[
+            {
+              x: data.map(item => item.date),
+              y: data.map(item => item.value),
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: { color: '#00FF00' },
+            },
+          ]}
+          layout={{
+            title: 'Total Open Interest',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#FFFFFF' },
+            xaxis: { title: 'Date' },
+            yaxis: { title: 'Open Interest' },
+          }}
+          style={{ width: '100%', height: '100%' }}
+        />
       </div>
     </div>
   );
