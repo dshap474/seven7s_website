@@ -62,7 +62,7 @@ const Dashboard = () => {
   const [data, setData] = useState<DataPoint[]>([]);
 
   useEffect(() => {
-    fetch('/dashboard_data/Total Open Interest.csv')
+    fetch('/dashboard_data/total_open_interest.csv')
       .then(response => response.text())
       .then(text => {
         const rows = text.split('\n').slice(1);
