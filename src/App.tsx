@@ -60,19 +60,47 @@ interface DataPoint {
 
 const Dashboard = () => {
   const [data, setData] = useState<DataPoint[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setIsLoading(true);
     fetch('/dashboard_data/total_open_interest.csv')
-      .then(response => response.text())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        return response.text();
+      })
       .then(text => {
         const rows = text.split('\n').slice(1);
-        const parsedData = rows.map(row => {
-          const [date, value] = row.split(',');
-          return { date, value: parseFloat(value) };
-        });
-        setData(parsedData as DataPoint[]);
+        const parsedData = rows
+          .filter(row => row.trim() !== '')
+          .map(row => {
+            const [date, value] = row.split(',');
+            return { date, value: parseFloat(value) };
+          });
+        setData(parsedData);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data. Please try again later.');
+        setIsLoading(false);
       });
   }, []);
+
+  if (isLoading) {
+    return <div className="text-white">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-white">{error}</div>;
+  }
+
+  if (data.length === 0) {
+    return <div className="text-white">No data available</div>;
+  }
 
   return (
     <div className="text-white flex flex-col items-center justify-center h-full w-full">
