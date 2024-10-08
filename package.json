@@ -15,15 +15,18 @@
     "lightweight-charts": "^4.2.1",
     "lucide-react": "^0.344.0",
     "papaparse": "^5.4.1",
+    "plotly.js": "^2.35.2",
     "plotly.js-dist-min": "^2.35.2",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-plotly.js": "^2.6.0"
   },
   "devDependencies": {
     "@types/plotly.js": "^2.33.4",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
+    "@types/react-plotly.js": "^2.6.3",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
     "@vitejs/plugin-react": "^4.2.1",

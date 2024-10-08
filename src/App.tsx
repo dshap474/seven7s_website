@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Home } from 'lucide-react';
+import Plot from 'react-plotly.js';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -52,14 +53,55 @@ const LaunchPage = () => (
   </div>
 );
 
-const Dashboard = () => (
-  <div className="text-white flex items-center justify-center h-full">
-    <div className="text-center">
+interface DataPoint {
+  date: string;
+  value: number;
+}
+
+const Dashboard = () => {
+  const [data, setData] = useState<DataPoint[]>([]);
+
+  useEffect(() => {
+    fetch('/dashboard_data/Total Open Interest.csv')
+      .then(response => response.text())
+      .then(text => {
+        const rows = text.split('\n').slice(1);
+        const parsedData = rows.map(row => {
+          const [date, value] = row.split(',');
+          return { date, value: parseFloat(value) };
+        });
+        setData(parsedData as DataPoint[]);
+      });
+  }, []);
+
+  return (
+    <div className="text-white flex flex-col items-center justify-center h-full w-full">
       <h2 className="text-3xl font-bold mb-4">Dashboard</h2>
-      <p>Welcome to the Dashboard. Content coming soon.</p>
+      <div className="w-full h-[calc(100vh-120px)]">
+        <Plot
+          data={[
+            {
+              x: data.map(item => item.date),
+              y: data.map(item => item.value),
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: '#00FF00'},
+            },
+          ]}
+          layout={{
+            title: 'Total Open Interest',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#FFFFFF' },
+            xaxis: { title: 'Date' },
+            yaxis: { title: 'Open Interest' },
+          }}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const tabs = [
   { name: 'Launch', icon: Home, component: LaunchPage },
