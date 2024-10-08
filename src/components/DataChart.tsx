@@ -28,27 +28,29 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   }
 
   useEffect(() => {
+    const calculateZScore = (values: (number | null)[], window: number) => {
+      return values.map((_, index, array) => {
+        const windowSlice = array.slice(Math.max(0, index - window + 1), index + 1).filter((v): v is number => v !== null);
+        if (windowSlice.length < 2) return null;
+        const mean = windowSlice.reduce((sum, val) => sum + val, 0) / windowSlice.length;
+        const stdDev = Math.sqrt(windowSlice.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / windowSlice.length);
+        return stdDev === 0 ? null : ((array[index] as number) - mean) / stdDev;
+      });
+    };
+
     if (showZScore) {
       const mainData = data.map(item => {
         const value = Object.values(item).find(val => typeof val === 'number' && val !== item.btc_price);
         return value !== undefined ? value : null;
       });
 
-      const calculateZScore = (values: (number | null)[], window: number) => {
-        return values.map((_, index, array) => {
-          const windowSlice = array.slice(Math.max(0, index - window + 1), index + 1).filter((v): v is number => v !== null);
-          if (windowSlice.length < 2) return null;
-          const mean = windowSlice.reduce((sum, val) => sum + val, 0) / windowSlice.length;
-          const stdDev = Math.sqrt(windowSlice.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / windowSlice.length);
-          return stdDev === 0 ? null : ((array[index] as number) - mean) / stdDev;
-        });
-      };
-
-      setZScoreData(calculateZScore(mainData, zScoreWindow));
+      const fullZScoreData = calculateZScore(mainData, zScoreWindow);
+      setZScoreData(fullZScoreData);
     }
   }, [showZScore, zScoreWindow, data]);
 
   const filteredData = useLookback ? data.slice(-lookbackDays) : data;
+  const filteredZScoreData = useLookback ? zScoreData.slice(-lookbackDays) : zScoreData;
 
   const chartData = {
     labels: filteredData.map(item => item.index),
@@ -78,7 +80,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       },
       ...(showZScore ? [{
         label: `${title} Z-Score (${zScoreWindow} periods)`,
-        data: zScoreData.slice(-lookbackDays),
+        data: filteredZScoreData,
         borderColor: 'rgb(0, 255, 255)',
         backgroundColor: 'rgba(0, 255, 255, 0.1)',
         tension: 0.1,
