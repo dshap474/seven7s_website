@@ -44,6 +44,9 @@ const LaunchPage = () => (
         className="w-[70%] h-[70%] object-contain"
       />
     </div>
+    <div className="absolute inset-0 flex items-center justify-center">
+      <h1 className="text-white text-7xl font-bold"></h1>
+    </div>
   </div>
 );
 
