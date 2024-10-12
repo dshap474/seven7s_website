@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import Crosshair from 'chartjs-plugin-crosshair';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Crosshair);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface ChartData {
   index: string;
@@ -62,7 +61,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           return value !== undefined ? value : null;
         }),
         borderColor: 'rgb(0, 255, 255)',
-        backgroundColor: 'rgba(0, 255, 255, 0.1)',
+        backgroundColor: 'rgb(0, 255, 255)',
         tension: 0.1,
         yAxisID: 'y',
         pointRadius: 0,
@@ -72,7 +71,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         label: 'BTC Price',
         data: filteredData.map(item => item.btc_price),
         borderColor: 'rgb(128, 128, 128)',
-        backgroundColor: 'rgba(128, 128, 128, 0.1)',
+        backgroundColor: 'rgb(128, 128, 128)',
         tension: 0.1,
         yAxisID: 'y1',
         pointRadius: 0,
@@ -82,7 +81,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         label: `${title} Z-Score (${zScoreWindow} periods)`,
         data: filteredZScoreData,
         borderColor: 'rgb(0, 255, 255)',
-        backgroundColor: 'rgba(0, 255, 255, 0.1)',
+        backgroundColor: 'rgb(0, 255, 255)',
         tension: 0.1,
         yAxisID: 'y2',
         pointRadius: 0,
@@ -91,7 +90,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     ]
   };
 
-  const options = {
+  const options: any = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
@@ -100,34 +99,67 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     },
     stacked: false,
     plugins: {
-      legend: {
-        position: 'top' as const,
-      },
       title: {
-        display: false,
+        display: true,
+        text: title,
+        position: 'top' as const,
+        align: 'start' as const,
+        color: 'rgb(255, 255, 255)',
+        font: {
+          size: 16,
+          weight: 'bold',
+        },
+        padding: {
+          top: 10,
+          bottom: 30,
+        },
+      },
+      legend: {
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          boxWidth: 6,
+          boxHeight: 6,
+          font: {
+            size: 11,
+          },
+        },
       },
       tooltip: {
-        mode: 'index' as const,
+        backgroundColor: '#131722',
+        titleColor: 'rgb(255, 255, 255)',
+        bodyColor: 'rgb(255, 255, 255)',
+        borderColor: 'rgb(31, 41, 55)',
+        borderWidth: 1,
+        padding: 15,
+        titleFont: {
+          size: 11,
+        },
+        bodyFont: {
+          size: 11,
+        },
+        usePointStyle: true,
+        pointStyle: 'circle',
+        boxWidth: 6,
+        boxHeight: 6,
+        callbacks: {
+          label: function(context: any) {
+            let label = context.dataset.label || '';
+            let value = '';
+            if (context.parsed.y !== null) {
+              value = context.parsed.y.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              });
+            }
+            return `${label}  |  ${value}`;
+          }
+        },
+        bodyAlign: 'left',
+        titleAlign: 'left',
+        position: 'nearest',
+        mode: 'index',
         intersect: false,
-      },
-      crosshair: {
-        line: {
-          color: 'rgb(128, 128, 128)',
-          width: 1
-        },
-        sync: {
-          enabled: true,
-          group: 1,
-          suppressTooltips: false
-        },
-        zoom: {
-          enabled: false,
-        },
-        horizontal: {
-          enabled: true,
-          lineColor: 'rgb(128, 128, 128)',
-          lineWidth: 1,
-        },
       },
     },
     scales: {
@@ -137,7 +169,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           color: 'rgb(255, 255, 255)',
         },
         grid: {
-          color: 'rgba(128, 128, 128, 0.2)',
+          display: false,
         },
         border: {
           color: 'rgb(128, 128, 128)',
@@ -152,7 +184,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           color: 'rgb(255, 255, 255)',
         },
         grid: {
-          color: 'rgba(128, 128, 128, 0.2)',
+          display: false,
         },
         border: {
           color: 'rgb(128, 128, 128)',
@@ -166,8 +198,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           color: 'rgb(255, 255, 255)',
         },
         grid: {
-          drawOnChartArea: false,
-          color: 'rgba(128, 128, 128, 0.2)',
+          display: false,
         },
         border: {
           color: 'rgb(128, 128, 128)',
@@ -182,7 +213,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
             color: 'rgb(0, 255, 255)',
           },
           grid: {
-            drawOnChartArea: false,
+            display: false,
           },
           border: {
             color: 'rgb(0, 255, 255)',
@@ -193,69 +224,74 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   };
 
   return (
-    <div style={{ height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <label style={{ marginRight: '10px' }}>
-            <input
-              type="checkbox"
-              checked={showZScore}
-              onChange={(e) => setShowZScore(e.target.checked)}
-            />
-            Show Z-Score
-          </label>
-          {showZScore && (
+    <div className="h-full flex flex-col">
+      <div className="flex-grow overflow-hidden">
+        <div style={{ height: 'calc(100% - 20px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="number"
-                value={zScoreWindow}
-                onChange={(e) => setZScoreWindow(Math.max(2, parseInt(e.target.value) || 2))}
-                min="2"
-                style={{
-                  width: '60px',
-                  backgroundColor: 'rgba(0, 255, 255, 0.1)',
-                  color: 'rgb(255, 255, 255)',
-                  border: '1px solid rgb(0, 255, 255)',
-                  borderRadius: '4px',
-                  padding: '2px 5px'
-                }}
-              />
-              <span style={{ marginLeft: '5px', color: 'rgb(255, 255, 255)' }}>periods</span>
+              {/* Removed the Use Lookback checkbox and input from here */}
             </div>
-          )}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <label style={{ marginRight: '10px' }}>
-            <input
-              type="checkbox"
-              checked={useLookback}
-              onChange={(e) => setUseLookback(e.target.checked)}
-            />
-            Use Lookback
-          </label>
-          {useLookback && (
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="number"
-                value={lookbackDays}
-                onChange={(e) => setLookbackDays(Math.max(1, parseInt(e.target.value) || 1))}
-                min="1"
-                style={{
-                  width: '60px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: 'rgb(255, 255, 255)',
-                  border: '1px solid rgb(255, 255, 255)',
-                  borderRadius: '4px',
-                  padding: '2px 5px'
-                }}
-              />
-              <span style={{ marginLeft: '5px', color: 'rgb(255, 255, 255)' }}>days</span>
+              <label style={{ marginRight: '10px' }}>
+                <input
+                  type="checkbox"
+                  checked={useLookback}
+                  onChange={(e) => setUseLookback(e.target.checked)}
+                />
+                Use Lookback
+              </label>
+              {useLookback && (
+                <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
+                  <input
+                    type="number"
+                    value={lookbackDays}
+                    onChange={(e) => setLookbackDays(Math.max(1, parseInt(e.target.value) || 1))}
+                    min="1"
+                    style={{
+                      width: '60px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: 'rgb(255, 255, 255)',
+                      border: '1px solid rgb(255, 255, 255)',
+                      borderRadius: '4px',
+                      padding: '2px 5px'
+                    }}
+                  />
+                  <span style={{ marginLeft: '5px', color: 'rgb(255, 255, 255)' }}>days</span>
+                </div>
+              )}
+              <label style={{ marginRight: '10px' }}>
+                <input
+                  type="checkbox"
+                  checked={showZScore}
+                  onChange={(e) => setShowZScore(e.target.checked)}
+                />
+                Show Z-Score
+              </label>
+              {showZScore && (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    value={zScoreWindow}
+                    onChange={(e) => setZScoreWindow(Math.max(2, parseInt(e.target.value) || 2))}
+                    min="2"
+                    style={{
+                      width: '60px',
+                      backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                      color: 'rgb(255, 255, 255)',
+                      border: '1px solid rgb(0, 255, 255)',
+                      borderRadius: '4px',
+                      padding: '2px 5px'
+                    }}
+                  />
+                  <span style={{ marginLeft: '5px', color: 'rgb(255, 255, 255)' }}>periods</span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+          <div style={{ height: 'calc(100% - 30px)' }}>
+            <Line data={chartData} options={options} />
+          </div>
         </div>
-      </div>
-      <div style={{ height: 'calc(100% - 40px)' }}>
-        <Line data={chartData} options={options} />
       </div>
     </div>
   );

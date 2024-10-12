@@ -109,12 +109,10 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="text-white p-4 overflow-y-auto h-full">
-      <h1 className="text-2xl font-bold mb-4">Analytics Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(data).map(([key, value]) => (
-          <div key={key} className="bg-[#191919] p-4 rounded-lg h-[600px]">
-            <h2 className="text-xl font-semibold mb-2">{key.replace(/_/g, ' ')}</h2>
-            <div className="h-[calc(100%-2rem)]">
+          <div key={key} className="bg-[#131722] p-4 rounded-lg h-[600px] border border-gray-800">
+            <div className="h-full">
               <DataChart data={value} title={key.replace(/_/g, ' ')} />
             </div>
           </div>
@@ -168,8 +166,8 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-black">
-      <header className="bg-black h-16 flex items-center">
-        <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center">
+      <header className="bg-black text-white p-4 h-14 border-b border-gray-400">
+        <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center h-full">
           <button
             onClick={() => setActiveTab('Launch')}
             className="text-2xl font-bold text-white hover:text-gray-200"
@@ -184,7 +182,7 @@ function App() {
                   onClick={() => setActiveTab(tab.name)}
                   className={`px-3 py-2 text-sm font-medium ${
                     activeTab === tab.name
-                      ? 'text-blue-300 border-b-2 border-blue-300'
+                      ? 'text-blue-300 border-b-4 border-blue-300'
                       : 'text-white hover:text-gray-200 hover:border-gray-200'
                   }`}
                 >
@@ -195,10 +193,7 @@ function App() {
           </nav>
         </div>
       </header>
-
-      <div className="h-1 bg-[#8E8E93]"></div>
-
-      <main className="flex-grow bg-black overflow-hidden">
+      <main className="flex-grow overflow-hidden">
         <div className="h-full overflow-y-auto">
           {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
         </div>
