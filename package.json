@@ -1,8 +1,8 @@
 {
-  "name": "your-project-name",
+  "name": "seven7s_website",
   "version": "1.0.0",
-  "description": "Your project description",
-  "main": "src/index.tsx",
+  "description": "Seven7s website",
+  "main": "src/main.tsx",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -17,6 +17,26 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11"
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^4.3.2",
+    "vite": "^5.4.8"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

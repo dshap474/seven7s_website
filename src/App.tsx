@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Home } from 'lucide-react';
 import DataChart from './components/DataChart';
 
 // Updated Objective Function component
@@ -123,7 +122,7 @@ const Analytics: React.FC = () => {
 };
 
 const tabs = [
-  { name: 'Launch', icon: Home, component: LaunchPage },
+  { name: 'Launch', component: LaunchPage },
   { name: 'Objective Function', component: ObjectiveFunction },
   { name: 'Analytics', component: Analytics },
   { name: 'Strategies', component: Strategies },
