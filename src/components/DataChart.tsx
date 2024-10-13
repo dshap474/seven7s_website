@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
@@ -17,7 +17,6 @@ interface DataChartProps {
 const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   const [showZScore, setShowZScore] = useState(false);
   const [zScoreWindow, setZScoreWindow] = useState(90);
-  const [zScoreData, setZScoreData] = useState<{ [key: string]: (number | null)[] }>({});
   const [lookbackPeriod, setLookbackPeriod] = useState('Y');
   const [visibleDatasets, setVisibleDatasets] = useState<{ [key: string]: boolean }>({});
 
@@ -28,26 +27,55 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   // Get all series names (excluding 'index')
   const seriesNames = Object.keys(data[0]).filter(key => key !== 'index');
 
-  useEffect(() => {
-    const calculateZScore = (values: (number | null)[], window: number) => {
-      return values.map((_, index, array) => {
-        const windowSlice = array.slice(Math.max(0, index - window + 1), index + 1).filter((v): v is number => v !== null);
-        if (windowSlice.length < 2) return null;
-        const mean = windowSlice.reduce((sum, val) => sum + val, 0) / windowSlice.length;
-        const stdDev = Math.sqrt(windowSlice.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / windowSlice.length);
-        return stdDev === 0 ? null : ((array[index] as number) - mean) / stdDev;
-      });
-    };
+  const calculateZScore = (values: (number | null)[], window: number) => {
+    const result: (number | null)[] = [];
+    let sum = 0;
+    let sumSquared = 0;
+    let count = 0;
 
-    if (showZScore) {
-      seriesNames.forEach(seriesName => {
-        if (seriesName !== 'btc_price') {
-          const seriesData = data.map(item => typeof item[seriesName] === 'number' ? item[seriesName] as number : null);
-          const seriesZScoreData = calculateZScore(seriesData, zScoreWindow);
-          setZScoreData(prevState => ({...prevState, [seriesName]: seriesZScoreData}));
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+      if (value !== null) {
+        sum += value;
+        sumSquared += value * value;
+        count++;
+
+        if (count > window) {
+          const oldValue = values[i - window];
+          if (oldValue !== null) {
+            sum -= oldValue;
+            sumSquared -= oldValue * oldValue;
+            count--;
+          }
         }
-      });
+
+        if (count >= 2) {
+          const mean = sum / count;
+          const variance = (sumSquared / count) - (mean * mean);
+          const stdDev = Math.sqrt(variance);
+          result.push(stdDev === 0 ? null : (value - mean) / stdDev);
+        } else {
+          result.push(null);
+        }
+      } else {
+        result.push(null);
+      }
     }
+
+    return result;
+  };
+
+  const zScoreData = useMemo(() => {
+    if (!showZScore) return {};
+
+    const result: { [key: string]: (number | null)[] } = {};
+    seriesNames.forEach(seriesName => {
+      if (seriesName !== 'btc_price') {
+        const seriesData = data.map(item => typeof item[seriesName] === 'number' ? item[seriesName] as number : null);
+        result[seriesName] = calculateZScore(seriesData, zScoreWindow);
+      }
+    });
+    return result;
   }, [showZScore, zScoreWindow, data, seriesNames]);
 
   const getFilteredData = () => {
@@ -76,9 +104,9 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     return data.filter(item => new Date(item.index) >= startDate);
   };
 
-  const filteredData = getFilteredData();
+  const filteredData = useMemo(() => getFilteredData(), [data, lookbackPeriod]);
 
-  const chartData = {
+  const chartData = useMemo(() => ({
     labels: filteredData.map(item => item.index),
     datasets: seriesNames.flatMap((seriesName, index) => {
       const seriesData = filteredData.map(item => typeof item[seriesName] === 'number' ? item[seriesName] as number : null);
@@ -122,7 +150,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
 
       return datasets;
     })
-  };
+  }), [filteredData, seriesNames, showZScore, zScoreWindow, zScoreData, visibleDatasets]);
 
   const options: any = {
     responsive: true,
