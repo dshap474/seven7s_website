@@ -19,6 +19,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   const [zScoreWindow, setZScoreWindow] = useState(90);
   const [lookbackPeriod, setLookbackPeriod] = useState('Y');
   const [visibleDatasets, setVisibleDatasets] = useState<{ [key: string]: boolean }>({});
+  const [isPopout, setIsPopout] = useState(false);
 
   if (!data || data.length === 0) {
     return <div>No data available for {title}</div>;
@@ -256,8 +257,34 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     }));
   };
 
-  return (
-    <div className="h-full flex flex-col">
+  const togglePopout = () => {
+    setIsPopout(!isPopout);
+  };
+
+  const PopoutButton = () => (
+    <button
+      onClick={togglePopout}
+      style={{
+        backgroundColor: 'rgba(19, 23, 34, 0.7)',
+        border: '1px solid rgb(128, 128, 128)',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        padding: '8px 8px',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 3H21V9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 21H3V15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M21 3L14 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3 21L10 14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </button>
+  );
+
+  const chartContent = (
+    <div className="h-full flex flex-col" style={{ position: 'relative' }}>
       <div className="flex-grow overflow-hidden">
         <div style={{ height: 'calc(100% - 20px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -285,7 +312,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
                   ))}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px', border: '1px solid rgb(128, 128, 128)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(128, 128, 128)', borderRadius: '4px', overflow: 'hidden' }}>
                 <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(128, 128, 128)' }}>Z-Score</span>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {['30', '90', '180', '365'].map((period) => (
@@ -312,6 +339,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
                   ))}
                 </div>
               </div>
+              <PopoutButton />
             </div>
           </div>
           <div style={{ borderTop: '1px solid rgb(128, 128, 128)', marginBottom: '10px' }}></div>
@@ -340,6 +368,44 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       </div>
     </div>
   );
+
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsPopout(false);
+      }
+    };
+
+    if (isPopout) {
+      window.addEventListener('keydown', handleEscKey);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleEscKey);
+    };
+  }, [isPopout]);
+
+  if (isPopout) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: '5.5%',
+        left: '.65%',
+        width: '98%',
+        height: '93.2%',
+        backgroundColor: '#131722',
+        zIndex: 1000,
+        border: '1px solid rgb(128, 128, 128)',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        padding: '20px'
+      }}>
+        {chartContent}
+      </div>
+    );
+  }
+
+  return chartContent;
 };
 
 export default DataChart;
