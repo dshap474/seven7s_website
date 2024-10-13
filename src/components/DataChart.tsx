@@ -7,7 +7,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 interface ChartData {
   index: string;
   [key: string]: string | number;
-  btc_price: number;
 }
 
 interface DataChartProps {
@@ -18,13 +17,16 @@ interface DataChartProps {
 const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   const [showZScore, setShowZScore] = useState(false);
   const [zScoreWindow, setZScoreWindow] = useState(90);
-  const [zScoreData, setZScoreData] = useState<(number | null)[]>([]);
-  const [lookbackDays, setLookbackDays] = useState(365);
-  const [useLookback, setUseLookback] = useState(true);
+  const [zScoreData, setZScoreData] = useState<{ [key: string]: (number | null)[] }>({});
+  const [lookbackPeriod, setLookbackPeriod] = useState('Y');
+  const [visibleDatasets, setVisibleDatasets] = useState<{ [key: string]: boolean }>({});
 
   if (!data || data.length === 0) {
     return <div>No data available for {title}</div>;
   }
+
+  // Get all series names (excluding 'index')
+  const seriesNames = Object.keys(data[0]).filter(key => key !== 'index');
 
   useEffect(() => {
     const calculateZScore = (values: (number | null)[], window: number) => {
@@ -38,56 +40,88 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     };
 
     if (showZScore) {
-      const mainData = data.map(item => {
-        const value = Object.values(item).find(val => typeof val === 'number' && val !== item.btc_price);
-        return value !== undefined ? value : null;
+      seriesNames.forEach(seriesName => {
+        if (seriesName !== 'btc_price') {
+          const seriesData = data.map(item => typeof item[seriesName] === 'number' ? item[seriesName] as number : null);
+          const seriesZScoreData = calculateZScore(seriesData, zScoreWindow);
+          setZScoreData(prevState => ({...prevState, [seriesName]: seriesZScoreData}));
+        }
       });
-
-      const fullZScoreData = calculateZScore(mainData as (number | null)[], zScoreWindow);
-      setZScoreData(fullZScoreData);
     }
-  }, [showZScore, zScoreWindow, data]);
+  }, [showZScore, zScoreWindow, data, seriesNames]);
 
-  const filteredData = useLookback ? data.slice(-lookbackDays) : data;
-  const filteredZScoreData = useLookback ? zScoreData.slice(-lookbackDays) : zScoreData;
+  const getFilteredData = () => {
+    const currentDate = new Date();
+    const startDate = new Date(currentDate);
+
+    switch (lookbackPeriod) {
+      case 'M':
+        startDate.setMonth(currentDate.getMonth() - 1);
+        break;
+      case 'Q':
+        startDate.setMonth(currentDate.getMonth() - 3);
+        break;
+      case 'YTD':
+        startDate.setMonth(0);
+        startDate.setDate(1);
+        break;
+      case 'Y':
+        startDate.setFullYear(currentDate.getFullYear() - 1);
+        break;
+      case 'AT':
+      default:
+        return data;
+    }
+
+    return data.filter(item => new Date(item.index) >= startDate);
+  };
+
+  const filteredData = getFilteredData();
 
   const chartData = {
     labels: filteredData.map(item => item.index),
-    datasets: [
-      ...(showZScore ? [] : [{
-        label: title,
-        data: filteredData.map(item => {
-          const value = Object.values(item).find(val => typeof val === 'number' && val !== item.btc_price);
-          return value !== undefined ? value : null;
-        }),
-        borderColor: 'rgb(0, 255, 255)',
-        backgroundColor: 'rgb(0, 255, 255)',
-        tension: 0.1,
-        yAxisID: 'y',
-        pointRadius: 0,
-        borderWidth: 1,
-      }]),
-      {
-        label: 'BTC Price',
-        data: filteredData.map(item => item.btc_price),
-        borderColor: 'rgb(128, 128, 128)',
-        backgroundColor: 'rgb(128, 128, 128)',
-        tension: 0.1,
-        yAxisID: 'y1',
-        pointRadius: 0,
-        borderWidth: 1,
-      },
-      ...(showZScore ? [{
-        label: `${title} Z-Score (${zScoreWindow} periods)`,
-        data: filteredZScoreData,
-        borderColor: 'rgb(0, 255, 255)',
-        backgroundColor: 'rgb(0, 255, 255)',
-        tension: 0.1,
-        yAxisID: 'y2',
-        pointRadius: 0,
-        borderWidth: 1,
-      }] : [])
-    ]
+    datasets: seriesNames.flatMap((seriesName, index) => {
+      const seriesData = filteredData.map(item => typeof item[seriesName] === 'number' ? item[seriesName] as number : null);
+      const datasets = [];
+
+      const getSeriesColor = (seriesIndex: number) => {
+        if (seriesName === 'btc_price') return 'rgb(100, 100, 100)';
+        if (seriesIndex === 0) return 'rgb(0, 255, 255)';  // First series is now cyan
+        if (seriesIndex === 1) return 'rgb(255, 0, 255)';  // Second non-btc_price series
+        return `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+      };
+
+      const seriesColor = getSeriesColor(index);
+
+      if (!showZScore || seriesName === 'btc_price') {
+        datasets.push({
+          label: seriesName,
+          data: seriesData,
+          borderColor: seriesColor,
+          backgroundColor: seriesColor,
+          tension: 0.1,
+          yAxisID: seriesName === 'btc_price' ? 'y1' : 'y',
+          pointRadius: 0,
+          borderWidth: seriesName === 'btc_price' ? 1 : 1,
+          hidden: visibleDatasets[seriesName] === false,
+        });
+      } else {
+        const filteredZScoreData = zScoreData[seriesName]?.slice(-filteredData.length) || [];
+        datasets.push({
+          label: `${seriesName} Z-Score (${zScoreWindow} periods)`,
+          data: filteredZScoreData,
+          borderColor: seriesColor,
+          backgroundColor: seriesColor,
+          tension: 0.1,
+          yAxisID: 'y',
+          pointRadius: 0,
+          borderWidth: 1,
+          hidden: visibleDatasets[`${seriesName} Z-Score (${zScoreWindow} periods)`] === false,
+        });
+      }
+
+      return datasets;
+    })
   };
 
   const options: any = {
@@ -100,30 +134,10 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     stacked: false,
     plugins: {
       title: {
-        display: true,
-        text: title,
-        position: 'top' as const,
-        align: 'start' as const,
-        color: 'rgb(255, 255, 255)',
-        font: {
-          size: 16,
-          weight: 'bold',
-        },
-        padding: {
-          top: 10,
-          bottom: 30,
-        },
+        display: false,
       },
       legend: {
-        labels: {
-          usePointStyle: true,
-          pointStyle: 'circle',
-          boxWidth: 6,
-          boxHeight: 6,
-          font: {
-            size: 11,
-          },
-        },
+        display: false,
       },
       tooltip: {
         backgroundColor: '#131722',
@@ -178,7 +192,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       },
       y: {
         type: 'linear' as const,
-        display: !showZScore,
+        display: true,
         position: 'left' as const,
         ticks: {
           color: 'rgb(255, 255, 255)',
@@ -192,35 +206,26 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       },
       y1: {
         type: 'linear' as const,
-        display: true,
+        display: seriesNames.includes('btc_price'),
         position: 'right' as const,
         ticks: {
-          color: 'rgb(255, 255, 255)',
+          display: false,
         },
         grid: {
           display: false,
         },
         border: {
-          color: 'rgb(128, 128, 128)',
+          display: false,
         },
       },
-      ...(showZScore ? {
-        y2: {
-          type: 'linear' as const,
-          display: true,
-          position: 'left' as const,
-          ticks: {
-            color: 'rgb(0, 255, 255)',
-          },
-          grid: {
-            display: false,
-          },
-          border: {
-            color: 'rgb(0, 255, 255)',
-          },
-        },
-      } : {})
     },
+  };
+
+  const toggleDatasetVisibility = (datasetLabel: string) => {
+    setVisibleDatasets(prev => ({
+      ...prev,
+      [datasetLabel]: !prev[datasetLabel]
+    }));
   };
 
   return (
@@ -228,67 +233,79 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       <div className="flex-grow overflow-hidden">
         <div style={{ height: 'calc(100% - 20px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h2 style={{ color: 'rgb(255, 255, 255)', fontSize: '24px', fontWeight: 'bold', margin: '0' }}>
+              {title.split(' ').map(word => word.length <= 2 ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            </h2>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              {/* Removed the Use Lookback checkbox and input from here */}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <label style={{ marginRight: '10px' }}>
-                <input
-                  type="checkbox"
-                  checked={useLookback}
-                  onChange={(e) => setUseLookback(e.target.checked)}
-                />
-                Use Lookback
-              </label>
-              {useLookback && (
-                <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
-                  <input
-                    type="number"
-                    value={lookbackDays}
-                    onChange={(e) => setLookbackDays(Math.max(1, parseInt(e.target.value) || 1))}
-                    min="1"
-                    style={{
-                      width: '60px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      color: 'rgb(255, 255, 255)',
-                      border: '1px solid rgb(255, 255, 255)',
-                      borderRadius: '4px',
-                      padding: '2px 5px'
-                    }}
-                  />
-                  <span style={{ marginLeft: '5px', color: 'rgb(255, 255, 255)' }}>days</span>
-                </div>
-              )}
-              <label style={{ marginRight: '10px' }}>
-                <input
-                  type="checkbox"
-                  checked={showZScore}
-                  onChange={(e) => setShowZScore(e.target.checked)}
-                />
-                Show Z-Score
-              </label>
-              {showZScore && (
+              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(128, 128, 128)', borderRadius: '4px', overflow: 'hidden' }}>
+                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(128, 128, 128)' }}>Lookback</span>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <input
-                    type="number"
-                    value={zScoreWindow}
-                    onChange={(e) => setZScoreWindow(Math.max(2, parseInt(e.target.value) || 2))}
-                    min="2"
-                    style={{
-                      width: '60px',
-                      backgroundColor: 'rgba(0, 255, 255, 0.1)',
-                      color: 'rgb(255, 255, 255)',
-                      border: '1px solid rgb(0, 255, 255)',
-                      borderRadius: '4px',
-                      padding: '2px 5px'
-                    }}
-                  />
-                  <span style={{ marginLeft: '5px', color: 'rgb(255, 255, 255)' }}>periods</span>
+                  {['M', 'Q', 'YTD', 'Y', 'AT'].map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => setLookbackPeriod(period)}
+                      style={{
+                        backgroundColor: lookbackPeriod === period ? 'rgb(0, 255, 255)' : 'transparent',
+                        color: lookbackPeriod === period ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
+                        border: 'none',
+                        padding: '3px 8px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {period}
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px', border: '1px solid rgb(128, 128, 128)', borderRadius: '4px', overflow: 'hidden' }}>
+                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(128, 128, 128)' }}>Z-Score</span>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {['30', '90', '180', '365'].map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => {
+                        if (showZScore && zScoreWindow === parseInt(period)) {
+                          setShowZScore(false);
+                        } else {
+                          setShowZScore(true);
+                          setZScoreWindow(parseInt(period));
+                        }
+                      }}
+                      style={{
+                        backgroundColor: showZScore && zScoreWindow === parseInt(period) ? 'rgb(0, 255, 255)' : 'transparent',
+                        color: showZScore && zScoreWindow === parseInt(period) ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
+                        border: 'none',
+                        padding: '3px 8px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-          <div style={{ height: 'calc(100% - 30px)' }}>
+          <div style={{ borderTop: '1px solid rgb(128, 128, 128)', marginBottom: '10px' }}></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+            {chartData.datasets.map((dataset, index) => (
+              <div 
+                key={index} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  marginLeft: '15px', 
+                  cursor: 'pointer',
+                  opacity: dataset.hidden ? 0.5 : 1
+                }}
+                onClick={() => toggleDatasetVisibility(dataset.label)}
+              >
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: dataset.borderColor, marginRight: '5px' }}></div>
+                <span style={{ color: 'rgb(255, 255, 255)', fontSize: '11px' }}>{dataset.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ height: 'calc(100% - 60px)' }}>
             <Line data={chartData} options={options} />
           </div>
         </div>
