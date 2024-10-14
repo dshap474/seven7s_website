@@ -266,7 +266,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       onClick={togglePopout}
       style={{
         backgroundColor: 'rgba(19, 23, 34, 0.7)',
-        border: '1px solid rgb(128, 128, 128)',
+        border: '1px solid rgb(64, 64, 64)',
         borderRadius: '4px',
         cursor: 'pointer',
         padding: '8px 8px',
@@ -292,8 +292,8 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
               {title.split(' ').map(word => word.length <= 2 ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
             </h2>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(128, 128, 128)', borderRadius: '4px', overflow: 'hidden' }}>
-                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(128, 128, 128)' }}>Lookback</span>
+              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(64, 64, 64)', borderRadius: '4px', overflow: 'hidden' }}>
+                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(64, 64, 64)' }}>Lookback</span>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {['M', 'Q', 'YTD', 'Y', 'AT'].map((period) => (
                     <button
@@ -312,8 +312,8 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
                   ))}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(128, 128, 128)', borderRadius: '4px', overflow: 'hidden' }}>
-                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(128, 128, 128)' }}>Z-Score</span>
+              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(64, 64, 64)', borderRadius: '4px', overflow: 'hidden' }}>
+                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(64, 64, 64)' }}>Z-Score</span>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {['30', '90', '180', '365'].map((period) => (
                     <button
@@ -342,7 +342,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
               <PopoutButton />
             </div>
           </div>
-          <div style={{ borderTop: '1px solid rgb(128, 128, 128)', marginBottom: '10px' }}></div>
+          <div style={{ borderTop: '1px solid rgb(64, 64, 64)', marginBottom: '10px' }}></div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             {chartData.datasets.map((dataset, index) => (
               <div 
@@ -395,7 +395,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         height: '93.2%',
         backgroundColor: '#131722',
         zIndex: 1000,
-        border: '1px solid rgb(128, 128, 128)',
+        border: '1px solid rgb(64, 64, 64)',
         borderRadius: '8px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         padding: '20px'
