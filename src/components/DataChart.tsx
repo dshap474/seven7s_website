@@ -1,8 +1,32 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, LogarithmicScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import Crosshair from 'chartjs-plugin-crosshair';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  LogarithmicScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Crosshair
+);
+
+// Define color variables
+const CHART_COLORS = {
+  btcPrice: 'rgb(100, 100, 100)',
+  firstSeries: 'rgb(0, 255, 255)',
+  secondSeries: 'rgb(255, 0, 255)',
+  background: '#131722',
+  text: 'rgb(255, 255, 255)',
+  border: 'rgb(31, 41, 55)',
+  gridLines: 'rgb(128, 128, 128)',
+  highlight: '#00ffff',
+  accent: '#FF6A00',
+};
 
 interface ChartData {
   index: string;
@@ -20,6 +44,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   const [lookbackPeriod, setLookbackPeriod] = useState('Y');
   const [visibleDatasets, setVisibleDatasets] = useState<{ [key: string]: boolean }>({});
   const [isPopout, setIsPopout] = useState(false);
+  const [movingAveragePeriod, setMovingAveragePeriod] = useState<number | null>(null);
 
   if (!data || data.length === 0) {
     return <div>No data available for {title}</div>;
@@ -55,6 +80,38 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           const variance = (sumSquared / count) - (mean * mean);
           const stdDev = Math.sqrt(variance);
           result.push(stdDev === 0 ? null : (value - mean) / stdDev);
+        } else {
+          result.push(null);
+        }
+      } else {
+        result.push(null);
+      }
+    }
+
+    return result;
+  };
+
+  const calculateMovingAverage = (values: (number | null)[], window: number): (number | null)[] => {
+    const result: (number | null)[] = [];
+    let sum = 0;
+    let count = 0;
+
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+      if (value !== null) {
+        sum += value;
+        count++;
+
+        if (count > window) {
+          const oldValue = values[i - window];
+          if (oldValue !== null) {
+            sum -= oldValue;
+            count--;
+          }
+        }
+
+        if (count === window) {
+          result.push(sum / count);
         } else {
           result.push(null);
         }
@@ -107,6 +164,23 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
 
   const filteredData = useMemo(() => getFilteredData(), [data, lookbackPeriod]);
 
+  const movingAverages = useMemo(() => {
+    const result: { [key: string]: { [key: number]: (number | null)[] } } = {};
+    seriesNames.forEach(seriesName => {
+      if (seriesName !== 'btc_price') {
+        const seriesData = data.map(item => typeof item[seriesName] === 'number' ? item[seriesName] as number : null);
+        const zScores = showZScore ? zScoreData[seriesName] : seriesData;
+        result[seriesName] = {
+          30: calculateMovingAverage(zScores || seriesData, 30),
+          90: calculateMovingAverage(zScores || seriesData, 90),
+          180: calculateMovingAverage(zScores || seriesData, 180),
+          365: calculateMovingAverage(zScores || seriesData, 365),
+        };
+      }
+    });
+    return result;
+  }, [data, seriesNames, showZScore, zScoreData]);
+
   const chartData = useMemo(() => ({
     labels: filteredData.map(item => item.index),
     datasets: seriesNames.flatMap((seriesName, index) => {
@@ -114,44 +188,42 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       const datasets = [];
 
       const getSeriesColor = (seriesIndex: number) => {
-        if (seriesName === 'btc_price') return 'rgb(100, 100, 100)';
-        if (seriesIndex === 0) return 'rgb(0, 255, 255)';  // First series is now cyan
-        if (seriesIndex === 1) return 'rgb(255, 0, 255)';  // Second non-btc_price series
+        if (seriesName === 'btc_price') return CHART_COLORS.btcPrice;
+        if (seriesIndex === 0) return CHART_COLORS.firstSeries;
+        if (seriesIndex === 1) return CHART_COLORS.secondSeries;
         return `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
       };
 
       const seriesColor = getSeriesColor(index);
 
-      if (!showZScore || seriesName === 'btc_price') {
-        datasets.push({
-          label: seriesName,
-          data: seriesData,
-          borderColor: seriesColor,
-          backgroundColor: seriesColor,
-          tension: 0.1,
-          yAxisID: seriesName === 'btc_price' ? 'y1' : 'y',
-          pointRadius: 0,
-          borderWidth: seriesName === 'btc_price' ? 1 : 1,
-          hidden: visibleDatasets[seriesName] === false,
-        });
-      } else {
-        const filteredZScoreData = zScoreData[seriesName]?.slice(-filteredData.length) || [];
-        datasets.push({
-          label: `${seriesName} Z-Score (${zScoreWindow} periods)`,
-          data: filteredZScoreData,
-          borderColor: seriesColor,
-          backgroundColor: seriesColor,
-          tension: 0.1,
-          yAxisID: 'y',
-          pointRadius: 0,
-          borderWidth: 1,
-          hidden: visibleDatasets[`${seriesName} Z-Score (${zScoreWindow} periods)`] === false,
-        });
+      let dataToUse = seriesData;
+      let label = seriesName;
+
+      if (showZScore && seriesName !== 'btc_price') {
+        dataToUse = zScoreData[seriesName]?.slice(-filteredData.length) || [];
+        label = `${seriesName} Z-Score (${zScoreWindow} periods)`;
       }
+
+      if (movingAveragePeriod && seriesName !== 'btc_price') {
+        dataToUse = movingAverages[seriesName][movingAveragePeriod]?.slice(-filteredData.length) || dataToUse;
+        label = `${label} (${movingAveragePeriod}-day MA)`;
+      }
+
+      datasets.push({
+        label,
+        data: dataToUse,
+        borderColor: seriesColor,
+        backgroundColor: seriesColor,
+        tension: 0.1,
+        yAxisID: seriesName === 'btc_price' ? 'y1' : 'y',
+        pointRadius: 0,
+        borderWidth: seriesName === 'btc_price' ? 1 : 1,
+        hidden: visibleDatasets[label] === false,
+      });
 
       return datasets;
     })
-  }), [filteredData, seriesNames, showZScore, zScoreWindow, zScoreData, visibleDatasets]);
+  }), [filteredData, seriesNames, showZScore, zScoreWindow, zScoreData, visibleDatasets, movingAveragePeriod, movingAverages]);
 
   const options: any = {
     responsive: true,
@@ -169,10 +241,10 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         display: false,
       },
       tooltip: {
-        backgroundColor: '#131722',
-        titleColor: 'rgb(255, 255, 255)',
-        bodyColor: 'rgb(255, 255, 255)',
-        borderColor: 'rgb(31, 41, 55)',
+        backgroundColor: CHART_COLORS.background,
+        titleColor: CHART_COLORS.text,
+        bodyColor: CHART_COLORS.text,
+        borderColor: CHART_COLORS.border,
         borderWidth: 1,
         padding: 15,
         titleFont: {
@@ -204,18 +276,34 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         mode: 'index',
         intersect: false,
       },
+      crosshair: {
+        line: {
+          color: CHART_COLORS.gridLines,  // Color of the crosshair
+          width: 1,                       // Width of the crosshair
+          dashPattern: [5, 5]             // Dash pattern [dash length, gap length]
+        },
+        sync: {
+          enabled: true,                  // Enable sync between multiple charts
+        },
+        zoom: {
+          enabled: false,                 // Disable zoom functionality
+        },
+        snap: {
+          enabled: false,                 // Disable snapping to datapoints
+        },
+      },
     },
     scales: {
       x: {
         ticks: {
           maxTicksLimit: 10,
-          color: 'rgb(255, 255, 255)',
+          color: CHART_COLORS.text,
         },
         grid: {
           display: false,
         },
         border: {
-          color: 'rgb(128, 128, 128)',
+          color: CHART_COLORS.gridLines,
         },
         position: 'bottom' as const,
       },
@@ -224,17 +312,17 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         display: true,
         position: 'left' as const,
         ticks: {
-          color: 'rgb(255, 255, 255)',
+          color: CHART_COLORS.text,
         },
         grid: {
           display: false,
         },
         border: {
-          color: 'rgb(128, 128, 128)',
+          color: CHART_COLORS.gridLines,
         },
       },
       y1: {
-        type: 'linear' as const,
+        type: seriesNames.includes('btc_price') ? 'logarithmic' : 'linear' as const,
         display: seriesNames.includes('btc_price'),
         position: 'right' as const,
         ticks: {
@@ -264,57 +352,62 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   const PopoutButton = () => (
     <button
       onClick={togglePopout}
-      style={{
-        backgroundColor: 'rgba(19, 23, 34, 0.7)',
-        border: '1px solid rgb(64, 64, 64)',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        padding: '8px 8px',
-        display: 'flex',
-        alignItems: 'center',
-      }}
+      className="bg-opacity-70 bg-[#131722] border border-[#404040] rounded cursor-pointer p-2 flex items-center"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 3H21V9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M9 21H3V15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M21 3L14 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M3 21L10 14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M15 3H21V9" stroke={CHART_COLORS.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 21H3V15" stroke={CHART_COLORS.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M21 3L14 10" stroke={CHART_COLORS.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3 21L10 14" stroke={CHART_COLORS.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </button>
   );
 
+  const MovingAverageSelector = () => {
+    return (
+      <div className="flex items-center mr-5 border border-[#404040] rounded overflow-hidden">
+        <span className="text-[#FF6A00] px-2 py-1 border-r border-[#404040]">MA</span>
+        <div className="flex items-center">
+          {[30, 90, 180, 365].map((period) => (
+            <button
+              key={period}
+              onClick={() => setMovingAveragePeriod(movingAveragePeriod === period ? null : period)}
+              className={`${movingAveragePeriod === period ? 'bg-[#00ffff] text-black' : 'bg-transparent text-white'} border-none px-2 py-1 cursor-pointer`}
+            >
+              {period}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const chartContent = (
-    <div className="h-full flex flex-col" style={{ position: 'relative' }}>
+    <div className="h-full flex flex-col relative">
       <div className="flex-grow overflow-hidden">
-        <div style={{ height: 'calc(100% - 20px)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h2 style={{ color: 'rgb(255, 255, 255)', fontSize: '24px', fontWeight: 'bold', margin: '0' }}>
+        <div className="h-[calc(100%-20px)]">
+          <div className="flex justify-between items-center mb-2.5">
+            <h2 className="text-white text-2xl font-bold m-0">
               {title.split(' ').map(word => word.length <= 2 ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(64, 64, 64)', borderRadius: '4px', overflow: 'hidden' }}>
-                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(64, 64, 64)' }}>Lookback</span>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="flex items-center">
+              <div className="flex items-center mr-5 border border-[#404040] rounded overflow-hidden">
+                <span className="text-[#FF6A00] px-2 py-1 border-r border-[#404040]">Lookback</span>
+                <div className="flex items-center">
                   {['M', 'Q', 'YTD', 'Y', 'AT'].map((period) => (
                     <button
                       key={period}
                       onClick={() => setLookbackPeriod(period)}
-                      style={{
-                        backgroundColor: lookbackPeriod === period ? 'rgb(0, 255, 255)' : 'transparent',
-                        color: lookbackPeriod === period ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
-                        border: 'none',
-                        padding: '3px 8px',
-                        cursor: 'pointer'
-                      }}
+                      className={`${lookbackPeriod === period ? 'bg-[#00ffff] text-black' : 'bg-transparent text-white'} border-none px-2 py-1 cursor-pointer`}
                     >
                       {period}
                     </button>
                   ))}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '20px', border: '1px solid rgb(64, 64, 64)', borderRadius: '4px', overflow: 'hidden' }}>
-                <span style={{ color: 'rgb(255, 255, 255)', padding: '3px 8px', borderRight: '1px solid rgb(64, 64, 64)' }}>Z-Score</span>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="flex items-center mr-5 border border-[#404040] rounded overflow-hidden">
+                <span className="text-[#FF6A00] px-2 py-1 border-r border-[#404040]">Z-Score</span>
+                <div className="flex items-center">
                   {['30', '90', '180', '365'].map((period) => (
                     <button
                       key={period}
@@ -326,42 +419,31 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
                           setZScoreWindow(parseInt(period));
                         }
                       }}
-                      style={{
-                        backgroundColor: showZScore && zScoreWindow === parseInt(period) ? 'rgb(0, 255, 255)' : 'transparent',
-                        color: showZScore && zScoreWindow === parseInt(period) ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
-                        border: 'none',
-                        padding: '3px 8px',
-                        cursor: 'pointer'
-                      }}
+                      className={`${showZScore && zScoreWindow === parseInt(period) ? 'bg-[#00ffff] text-black' : 'bg-transparent text-white'} border-none px-2 py-1 cursor-pointer`}
                     >
                       {period}
                     </button>
                   ))}
                 </div>
               </div>
+              <MovingAverageSelector />
               <PopoutButton />
             </div>
           </div>
-          <div style={{ borderTop: '1px solid rgb(64, 64, 64)', marginBottom: '10px' }}></div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+          <div className="border-t border-[#404040] mb-2.5"></div>
+          <div className="flex justify-end mb-2.5">
             {chartData.datasets.map((dataset, index) => (
               <div 
                 key={index} 
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginLeft: '15px', 
-                  cursor: 'pointer',
-                  opacity: dataset.hidden ? 0.5 : 1
-                }}
+                className={`flex items-center ml-3.5 cursor-pointer ${dataset.hidden ? 'opacity-50' : 'opacity-100'}`}
                 onClick={() => toggleDatasetVisibility(dataset.label)}
               >
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: dataset.borderColor, marginRight: '5px' }}></div>
-                <span style={{ color: 'rgb(255, 255, 255)', fontSize: '11px' }}>{dataset.label}</span>
+                <div className="w-1.5 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: dataset.borderColor }}></div>
+                <span className="text-white text-xs">{dataset.label}</span>
               </div>
             ))}
           </div>
-          <div style={{ height: 'calc(100% - 60px)' }}>
+          <div className="h-[calc(100%-60px)]">
             <Line data={chartData} options={options} />
           </div>
         </div>
@@ -387,19 +469,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
 
   if (isPopout) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: '5.5%',
-        left: '.65%',
-        width: '98%',
-        height: '93.2%',
-        backgroundColor: '#131722',
-        zIndex: 1000,
-        border: '1px solid rgb(64, 64, 64)',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        padding: '20px'
-      }}>
+      <div className="fixed top-[5.5%] left-[.65%] w-[98%] h-[93.2%] bg-[#131722] z-[1000] border border-[#404040] rounded-lg shadow-lg p-5">
         {chartContent}
       </div>
     );
