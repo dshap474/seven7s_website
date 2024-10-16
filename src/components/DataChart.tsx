@@ -28,6 +28,7 @@ const CHART_COLORS = {
   accent: '#FF6A00',
 };
 
+// Define interfaces for chart data and props
 interface ChartData {
   index: string;
   [key: string]: string | number;
@@ -39,6 +40,7 @@ interface DataChartProps {
 }
 
 const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
+  // State declarations
   const [showZScore, setShowZScore] = useState(false);
   const [zScoreWindow, setZScoreWindow] = useState(90);
   const [lookbackPeriod, setLookbackPeriod] = useState('Y');
@@ -53,6 +55,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
   // Get all series names (excluding 'index')
   const seriesNames = Object.keys(data[0]).filter(key => key !== 'index');
 
+  // Z-Score calculation function
   const calculateZScore = (values: (number | null)[], window: number) => {
     const result: (number | null)[] = [];
     let sum = 0;
@@ -91,6 +94,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     return result;
   };
 
+  // Moving average calculation function
   const calculateMovingAverage = (values: (number | null)[], window: number): (number | null)[] => {
     const result: (number | null)[] = [];
     let sum = 0;
@@ -123,6 +127,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     return result;
   };
 
+  // Z-Score data calculation
   const zScoreData = useMemo(() => {
     if (!showZScore) return {};
 
@@ -136,6 +141,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     return result;
   }, [showZScore, zScoreWindow, data, seriesNames]);
 
+  // Data filtering based on lookback period
   const getFilteredData = () => {
     const currentDate = new Date();
     const startDate = new Date(currentDate);
@@ -164,6 +170,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
 
   const filteredData = useMemo(() => getFilteredData(), [data, lookbackPeriod]);
 
+  // Moving averages calculation
   const movingAverages = useMemo(() => {
     const result: { [key: string]: { [key: number]: (number | null)[] } } = {};
     seriesNames.forEach(seriesName => {
@@ -181,6 +188,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     return result;
   }, [data, seriesNames, showZScore, zScoreData]);
 
+  // Chart data preparation
   const chartData = useMemo(() => ({
     labels: filteredData.map(item => item.index),
     datasets: seriesNames.flatMap((seriesName, index) => {
@@ -225,6 +233,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     })
   }), [filteredData, seriesNames, showZScore, zScoreWindow, zScoreData, visibleDatasets, movingAveragePeriod, movingAverages]);
 
+  // Chart options configuration
   const options: any = {
     responsive: true,
     maintainAspectRatio: false,
@@ -309,7 +318,6 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           display: true,
           color: CHART_COLORS.gridLines,
         },
-        position: 'bottom' as const,
       },
       y: {
         type: 'linear' as const,
@@ -340,20 +348,11 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           display: true,
           color: CHART_COLORS.gridLines,
         },
-        afterDataLimits: (scale: any) => {
-          const btcPrices = filteredData.map(item => item.btc_price as number).filter(price => price !== undefined && price !== null);
-          if (btcPrices.length > 0) {
-            const max = Math.max(...btcPrices);
-            const min = Math.min(...btcPrices);
-            const padding = (max - min) * 0.1; // Add 10% padding
-            scale.max = max + padding;
-            scale.min = Math.max(min - padding, 0); // Ensure min is not negative
-          }
-        },
       },
     },
   };
 
+  // Toggle dataset visibility
   const toggleDatasetVisibility = (datasetLabel: string) => {
     setVisibleDatasets(prev => ({
       ...prev,
@@ -361,10 +360,12 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     }));
   };
 
+  // Toggle popout mode
   const togglePopout = () => {
     setIsPopout(!isPopout);
   };
 
+  // Popout button component
   const PopoutButton = () => (
     <button
       onClick={togglePopout}
@@ -379,6 +380,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     </button>
   );
 
+  // Moving average selector component
   const MovingAverageSelector = () => {
     return (
       <div className="flex items-center mr-5 border border-[#404040] rounded overflow-hidden">
@@ -398,6 +400,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     );
   };
 
+  // Main chart content
   const chartContent = (
     <div className="h-full flex flex-col relative">
       <div className="flex-grow overflow-hidden">
@@ -467,6 +470,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
     </div>
   );
 
+  // Effect for handling escape key in popout mode
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
