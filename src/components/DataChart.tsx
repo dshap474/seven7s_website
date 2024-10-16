@@ -303,8 +303,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           minRotation: 45,
         },
         grid: {
-          display: true,
-          color: CHART_COLORS.gridLines,
+          display: false,
         },
         border: {
           display: true,
@@ -320,8 +319,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           color: CHART_COLORS.text,
         },
         grid: {
-          display: true,
-          color: CHART_COLORS.gridLines,
+          display: false,
         },
         border: {
           display: true,
@@ -343,8 +341,14 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           color: CHART_COLORS.gridLines,
         },
         afterDataLimits: (scale: any) => {
-          scale.max = Math.max(...filteredData.map(item => item.btc_price as number));
-          scale.min = Math.min(...filteredData.map(item => item.btc_price as number));
+          const btcPrices = filteredData.map(item => item.btc_price as number).filter(price => price !== undefined && price !== null);
+          if (btcPrices.length > 0) {
+            const max = Math.max(...btcPrices);
+            const min = Math.min(...btcPrices);
+            const padding = (max - min) * 0.1; // Add 10% padding
+            scale.max = max + padding;
+            scale.min = Math.max(min - padding, 0); // Ensure min is not negative
+          }
         },
       },
     },
