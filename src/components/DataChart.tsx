@@ -336,7 +336,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         },
       },
       y1: {
-        type: 'logarithmic' as const,
+        type: 'linear' as const,
         display: seriesNames.includes('btc_price'),
         position: 'right' as const,
         ticks: {
