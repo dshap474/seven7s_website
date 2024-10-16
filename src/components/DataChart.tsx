@@ -298,11 +298,15 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         ticks: {
           maxTicksLimit: 10,
           color: CHART_COLORS.text,
+          autoSkip: true,
+          maxRotation: 45,
+          minRotation: 45,
         },
         grid: {
           display: false,
         },
         border: {
+          display: true,
           color: CHART_COLORS.gridLines,
         },
         position: 'bottom' as const,
@@ -318,6 +322,7 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           display: false,
         },
         border: {
+          display: true,
           color: CHART_COLORS.gridLines,
         },
       },
