@@ -278,18 +278,18 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
       },
       crosshair: {
         line: {
-          color: CHART_COLORS.gridLines,  // Color of the crosshair
-          width: 1,                       // Width of the crosshair
-          dashPattern: [5, 5]             // Dash pattern [dash length, gap length]
+          color: CHART_COLORS.gridLines,
+          width: 1,
+          dashPattern: [5, 5]
         },
         sync: {
-          enabled: true,                  // Enable sync between multiple charts
+          enabled: true,
         },
         zoom: {
-          enabled: false,                 // Disable zoom functionality
+          enabled: false,
         },
         snap: {
-          enabled: false,                 // Disable snapping to datapoints
+          enabled: false,
         },
       },
     },
@@ -303,7 +303,8 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           minRotation: 45,
         },
         grid: {
-          display: false,
+          display: true,
+          color: CHART_COLORS.gridLines,
         },
         border: {
           display: true,
@@ -319,7 +320,8 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
           color: CHART_COLORS.text,
         },
         grid: {
-          display: false,
+          display: true,
+          color: CHART_COLORS.gridLines,
         },
         border: {
           display: true,
@@ -327,17 +329,22 @@ const DataChart: React.FC<DataChartProps> = ({ data, title }) => {
         },
       },
       y1: {
-        type: seriesNames.includes('btc_price') ? 'logarithmic' : 'linear' as const,
+        type: 'logarithmic' as const,
         display: seriesNames.includes('btc_price'),
         position: 'right' as const,
         ticks: {
-          display: false,
+          color: CHART_COLORS.text,
         },
         grid: {
           display: false,
         },
         border: {
-          display: false,
+          display: true,
+          color: CHART_COLORS.gridLines,
+        },
+        afterDataLimits: (scale: any) => {
+          scale.max = Math.max(...filteredData.map(item => item.btc_price as number));
+          scale.min = Math.min(...filteredData.map(item => item.btc_price as number));
         },
       },
     },
