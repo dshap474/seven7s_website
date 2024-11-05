@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, LogarithmicScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import Crosshair from 'chartjs-plugin-crosshair';
+import annotationPlugin from 'chartjs-plugin-annotation';  // Add this line
 
 ChartJS.register(
   CategoryScale,
@@ -12,7 +13,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Crosshair
+  Crosshair,
+  annotationPlugin  // Add this line
 );
 
 // Define color variables
