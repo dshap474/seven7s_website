@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DataChart from './components/DataChart';
+import BacktestMetrics from './components/BacktestMetrics';
+import BacktestChart from './components/BacktestChart';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -30,11 +32,75 @@ const Contact = () => (
   </div>
 );
 
-const Strategies = () => (
-  <div className="text-white flex items-center justify-center h-full">
-    <h2 className="text-3xl font-bold">Trading strategies</h2>
-  </div>
-);
+const Strategies = () => {
+  const [summaryData, setSummaryData] = useState<any[]>([]);
+  const [timeseriesData, setTimeseriesData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Define assets as a constant since we'll always show all of them
+  const assets = ['ETH', 'SOL', 'LINK', 'OP', 'IMX', 'MKR', 'UNI', 'FET', 'DOGE'];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch summary data
+        const summaryResponse = await fetch('/dashboard_data/backtest_summary.csv');
+        const summaryText = await summaryResponse.text();
+        const summaryRows = summaryText.split('\n')
+          .filter(row => row.trim())
+          .map(row => {
+            const [Metric, Value] = row.split(',');
+            return { 
+              Metric, 
+              Value: isNaN(Number(Value)) ? Value : Number(Value)
+            };
+          });
+
+        // Fetch timeseries data
+        const timeseriesResponse = await fetch('/dashboard_data/backtest_timeseries.csv');
+        const timeseriesText = await timeseriesResponse.text();
+        const [headers, ...rows] = timeseriesText.split('\n').filter(row => row.trim());
+        const headerArray = headers.split(',');
+        
+        const timeseriesRows = rows.map(row => {
+          const values = row.split(',');
+          return headerArray.reduce((obj: any, header, index) => {
+            obj[header] = values[index];
+            return obj;
+          }, {});
+        });
+
+        setSummaryData(summaryRows);
+        setTimeseriesData(timeseriesRows);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div className="text-white text-center p-8">Loading...</div>;
+  }
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <h1 className="text-white text-3xl font-bold mb-8">Trading Strategy Performance</h1>
+      
+      <div className="mb-8">
+        <BacktestMetrics metrics={summaryData} />
+      </div>
+
+      <BacktestChart 
+        data={timeseriesData} 
+        selectedAssets={assets}
+      />
+    </div>
+  );
+};
 
 const LaunchPage = () => (
   <div className="relative flex flex-col items-center justify-center h-full overflow-hidden">
