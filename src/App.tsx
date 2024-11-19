@@ -8,9 +8,7 @@ const ObjectiveFunction = () => (
   <div className="text-white flex items-center justify-center h-full">
     <div className="text-center">
       <p className="max-w-2xl">
-        AI is set to dramatically change our lives. Irrespective of whether we reach superintelligence, this technology will irreversibly alter the fabric of our reality—reshaping industries, economies, and even the way we understand human potential. As we enter the 4th Industrial Revolution, the scale of transformation ahead is staggering, yet with it comes opportunity. Those with the foresight to act and the situational awareness to leverage the intelligence explosion will find themselves in positions of unparalleled advantage, accumulating resources at a pace never before seen. But those who fail to act, lulled by the comforts of predictability, risk being left behind in this rapidly shifting landscape.
-
-        Together, as a collective intelligence, we can navigate this change and maximize our chances of success. This is not a zero-sum game—collaboration amplifies our potential and ensures that we are not merely spectators but active participants in the coming shift. Seven7s is a collective of individuals dedicated to open-source collaboration, united by a shared vision of reaching financial escape velocity.
+        seven7s is an open-source AI investment collective with the objective function of achieving financial escape velocity
       </p>
     </div>
   </div>

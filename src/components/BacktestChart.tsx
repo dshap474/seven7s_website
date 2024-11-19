@@ -50,75 +50,62 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
   , [data, selectedAssets]);
 
   const positionData = useMemo(() => {
-    // Debug DOGE data specifically
-    console.log('Debugging DOGE positions:');
-    const firstFewRows = data.slice(0, 5);
-    firstFewRows.forEach((row, index) => {
-      console.log(`Row ${index}:`, {
-        date: row.date,
-        doge_position: row['DOGE_position'],
-        doge_position_type: typeof row['DOGE_position'],
-        doge_position_parsed: parseFloat(row['DOGE_position']),
-        raw_row: row
-      });
-    });
-
-    // Try different ways to access DOGE position data
-    const dogePositions = data.filter(item => {
-      const dogeValue = item['DOGE_position'];
-      const parsedValue = parseFloat(dogeValue);
-      console.log('DOGE value check:', {
-        original: dogeValue,
-        type: typeof dogeValue,
-        parsed: parsedValue,
-        isOne: parsedValue === 1,
-        stringMatch: dogeValue === '1',
-        stringMatchWithZero: dogeValue === '1.0'
-      });
-      return parsedValue === 1;
-    });
-    console.log('DOGE positions found:', dogePositions.length);
-    console.log('Sample DOGE positions:', dogePositions.slice(0, 5));
-
-    // Try a more direct approach with detailed logging
     const positions: Position[] = [];
-    for (const item of data) {
-      for (const asset of selectedAssets) {
-        const positionValue = item[`${asset}_position`];
-        const numericValue = parseFloat(positionValue);
-        
-        // Debug log for DOGE
-        if (asset === 'DOGE' && numericValue === 1) {
-          console.log('Found DOGE position:', {
-            date: item.date,
-            originalValue: positionValue,
-            parsedValue: numericValue
-          });
-        }
-
-        if (numericValue === 1) {
-          positions.push({
-            date: item.date,
-            asset: asset
-          });
-        }
-      }
+    
+    if (!data || !selectedAssets) {
+        console.warn('Missing data or selectedAssets:', { data, selectedAssets });
+        return positions;
     }
 
-    // Log final counts for each asset
-    const assetCounts = selectedAssets.reduce((acc, asset) => {
-      acc[asset] = positions.filter(p => p.asset === asset).length;
-      return acc;
-    }, {} as Record<string, number>);
-    console.log('Position counts by asset:', assetCounts);
+    data.forEach((item, index) => {
+        selectedAssets.forEach(asset => {
+            const positionKey = Object.keys(item).find(key => 
+                key.replace('\r', '').toLowerCase() === `${asset.toLowerCase()}_position`
+            );
 
-    // Additional DOGE validation
-    const finalDogePositions = positions.filter(p => p.asset === 'DOGE');
-    console.log('Final DOGE positions:', {
-      count: finalDogePositions.length,
-      samples: finalDogePositions.slice(0, 5)
+            if (!positionKey && index === 0) {
+                console.warn(`No position key found for ${asset}. Available keys:`, 
+                    Object.keys(item).map(k => `"${k}"`)
+                );
+                return;
+            }
+
+            let positionValue = positionKey ? item[positionKey] : null;
+
+            if (asset === 'DOGE' && index < 5) {
+                console.log(`DOGE position check for ${item.date}:`, {
+                    foundKey: positionKey,
+                    rawValue: positionValue,
+                    cleanedKey: positionKey?.replace('\r', '')
+                });
+            }
+
+            const cleanValue = String(positionValue || '').trim();
+            
+            const isPosition = (
+                cleanValue === '1' || 
+                cleanValue === '1.0' || 
+                cleanValue === '1.00' ||
+                parseFloat(cleanValue) === 1
+            );
+
+            if (isPosition) {
+                positions.push({
+                    date: item.date,
+                    asset: asset
+                });
+            }
+        });
     });
 
+    selectedAssets.forEach(asset => {
+        const assetPositions = positions.filter(p => p.asset === asset);
+        console.log(`${asset} positions:`, {
+            count: assetPositions.length,
+            firstFew: assetPositions.slice(0, 3)
+        });
+    });
+    
     return positions;
   }, [data, selectedAssets]);
 
@@ -127,7 +114,7 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
 
     // Performance Chart
     const drawPerformanceChart = () => {
-      const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+      const margin = { top: 20, right: 30, bottom: 50, left: 60 };
       const width = performanceChartRef.current!.clientWidth - margin.left - margin.right;
       const height = 360 - margin.top - margin.bottom;
 
@@ -149,6 +136,18 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
           d3.max(formattedData, d => Math.max(d.portfolioValue, d.benchmarkReturn)) as number * 1.1
         ])
         .range([height, 0]);
+
+      // Add tooltip
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("background", "rgba(0,0,0,0.8)")
+        .style("color", "white")
+        .style("padding", "8px")
+        .style("border-radius", "4px")
+        .style("font-size", "12px")
+        .style("pointer-events", "none")
+        .style("opacity", 0);
 
       // Add X axis
       svg.append("g")
@@ -174,7 +173,23 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .x(d => x(new Date(d.date)))
         .y(d => y(d.benchmarkReturn));
 
-      // Portfolio line
+      // Add hover overlay
+      const bisect = d3.bisector((d: FormattedDataItem) => new Date(d.date)).left;
+      
+      const focus = svg.append("g")
+        .style("display", "none");
+
+      focus.append("circle")
+        .attr("r", 5)
+        .attr("class", "portfolio-point")
+        .style("fill", "#00ffff");
+
+      focus.append("circle")
+        .attr("r", 5)
+        .attr("class", "benchmark-point")
+        .style("fill", "#FF6A00");
+
+      // Portfolio line with hover
       svg.append("path")
         .datum(formattedData)
         .attr("fill", "none")
@@ -182,7 +197,7 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .attr("stroke-width", 1.5)
         .attr("d", line);
 
-      // Benchmark line
+      // Benchmark line with hover
       svg.append("path")
         .datum(formattedData)
         .attr("fill", "none")
@@ -190,20 +205,48 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .attr("stroke-width", 1.5)
         .attr("d", benchmarkLine);
 
-      // Add grid
-      svg.append("g")
-        .attr("class", "grid")
-        .call(d3.axisLeft(y)
-          .tickSize(-width)
-          .tickFormat(() => "")
-        )
-        .style("stroke", "rgba(255,255,255,0.1)")
-        .style("stroke-dasharray", "3,3");
+      // Add hover functionality
+      svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("mouseover", () => {
+          focus.style("display", null);
+          tooltip.style("opacity", 1);
+        })
+        .on("mouseout", () => {
+          focus.style("display", "none");
+          tooltip.style("opacity", 0);
+        })
+        .on("mousemove", (event) => {
+          const mouseX = d3.pointer(event)[0];
+          const x0 = x.invert(mouseX);
+          const i = bisect(formattedData, x0, 1);
+          const d0 = formattedData[i - 1];
+          const d1 = formattedData[i];
+          const d = x0.getTime() - new Date(d0.date).getTime() > new Date(d1.date).getTime() - x0.getTime() ? d1 : d0;
+
+          focus.select(".portfolio-point")
+            .attr("transform", `translate(${x(new Date(d.date))},${y(d.portfolioValue)})`);
+
+          focus.select(".benchmark-point")
+            .attr("transform", `translate(${x(new Date(d.date))},${y(d.benchmarkReturn)})`);
+
+          tooltip
+            .html(`
+              <div>Date: ${d.date}</div>
+              <div>Portfolio: ${d.portfolioValue.toFixed(2)}</div>
+              <div>Benchmark: ${d.benchmarkReturn.toFixed(2)}</div>
+            `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px");
+        });
     };
 
     // Asset Returns Chart
     const drawReturnsChart = () => {
-      const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+      const margin = { top: 20, right: 30, bottom: 50, left: 60 };
       const width = returnsChartRef.current!.clientWidth - margin.left - margin.right;
       const height = 360 - margin.top - margin.bottom;
 
@@ -213,6 +256,18 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
       const svg = d3.select(returnsChartRef.current)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // Add tooltip
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("background", "rgba(0,0,0,0.8)")
+        .style("color", "white")
+        .style("padding", "8px")
+        .style("border-radius", "4px")
+        .style("font-size", "12px")
+        .style("pointer-events", "none")
+        .style("opacity", 0);
 
       // Scales
       const x = d3.scaleTime()
@@ -245,6 +300,19 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .selectAll("text")
         .style("fill", "white");
 
+      // Add hover functionality
+      const bisect = d3.bisector((d: FormattedDataItem) => new Date(d.date)).left;
+      
+      const focus = svg.append("g")
+        .style("display", "none");
+
+      selectedAssets.forEach(asset => {
+        focus.append("circle")
+          .attr("r", 5)
+          .attr("class", `${asset}-point`)
+          .style("fill", colors[asset as keyof typeof colors]);
+      });
+
       // Add lines for each asset
       selectedAssets.forEach(asset => {
         const line = d3.line<FormattedDataItem>()
@@ -259,20 +327,48 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
           .attr("d", line);
       });
 
-      // Add grid
-      svg.append("g")
-        .attr("class", "grid")
-        .call(d3.axisLeft(y)
-          .tickSize(-width)
-          .tickFormat(() => "")
-        )
-        .style("stroke", "rgba(255,255,255,0.1)")
-        .style("stroke-dasharray", "3,3");
+      // Add hover overlay
+      svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("mouseover", () => {
+          focus.style("display", null);
+          tooltip.style("opacity", 1);
+        })
+        .on("mouseout", () => {
+          focus.style("display", "none");
+          tooltip.style("opacity", 0);
+        })
+        .on("mousemove", (event) => {
+          const mouseX = d3.pointer(event)[0];
+          const x0 = x.invert(mouseX);
+          const i = bisect(formattedData, x0, 1);
+          const d0 = formattedData[i - 1];
+          const d1 = formattedData[i];
+          const d = x0.getTime() - new Date(d0.date).getTime() > new Date(d1.date).getTime() - x0.getTime() ? d1 : d0;
+
+          selectedAssets.forEach(asset => {
+            focus.select(`.${asset}-point`)
+              .attr("transform", `translate(${x(new Date(d.date))},${y(d[`${asset}Return`])})`);
+          });
+
+          tooltip
+            .html(`
+              <div>Date: ${d.date}</div>
+              ${selectedAssets.map(asset => 
+                `<div style="color:${colors[asset as keyof typeof colors]}">${asset}: ${d[`${asset}Return`].toFixed(2)}</div>`
+              ).join('')}
+            `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px");
+        });
     };
 
     // Position Timeline Chart
     const drawPositionChart = () => {
-      const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+      const margin = { top: 20, right: 30, bottom: 50, left: 60 };
       const width = positionChartRef.current!.clientWidth - margin.left - margin.right;
       const height = 360 - margin.top - margin.bottom;
 
@@ -283,43 +379,15 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      // Error checking and debug info display
-      if (!data || data.length === 0) {
+      if (!data || data.length === 0 || !positionData || positionData.length === 0) {
         svg.append("text")
           .attr("x", width / 2)
           .attr("y", height / 2)
           .attr("text-anchor", "middle")
           .style("fill", "white")
-          .text("Error: No data available");
+          .text(data ? "No positions found" : "No data available");
         return;
       }
-
-      if (!positionData || positionData.length === 0) {
-        svg.append("text")
-          .attr("x", width / 2)
-          .attr("y", height / 2)
-          .attr("text-anchor", "middle")
-          .style("fill", "white")
-          .text("No position data found - Check console for debug info");
-        
-        svg.append("text")
-          .attr("x", width / 2)
-          .attr("y", height / 2 + 20)
-          .attr("text-anchor", "middle")
-          .style("fill", "gray")
-          .style("font-size", "12px")
-          .text(`Assets: ${selectedAssets.join(", ")}`);
-        
-        return;
-      }
-
-      // Debug info
-      console.log('Drawing position chart with:', {
-        dataLength: data.length,
-        positionDataLength: positionData.length,
-        selectedAssets,
-        samplePosition: positionData[0]
-      });
 
       // Scales
       const x = d3.scaleTime()
@@ -346,63 +414,79 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .selectAll("text")
         .style("fill", "white");
 
-      // Add grid
-      svg.append("g")
-        .attr("class", "grid")
-        .call(d3.axisLeft(y)
-          .tickSize(-width)
-          .tickFormat(() => "")
-        )
-        .style("stroke", "rgba(255,255,255,0.1)")
-        .style("stroke-dasharray", "3,3");
+      // Add tooltip
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("background", "rgba(0,0,0,0.8)")
+        .style("color", "white")
+        .style("padding", "8px")
+        .style("border-radius", "4px")
+        .style("font-size", "12px")
+        .style("pointer-events", "none")
+        .style("opacity", 0);
 
-      try {
-        // Add position markers as circles
-        svg.selectAll(".position-marker")
-          .data(positionData)
-          .enter()
-          .append("circle")
-          .attr("class", "position-marker")
-          .attr("cx", d => {
+      // When drawing markers, add error handling and hover effects
+      svg.selectAll(".position-marker")
+        .data(positionData)
+        .enter()
+        .append("circle")
+        .attr("class", "position-marker")
+        .attr("cx", d => {
             const xPos = x(new Date(d.date));
             if (isNaN(xPos)) {
-              console.error('Invalid x position for:', d);
-              return 0;
+                console.error('Invalid x position for:', d);
+                return 0;
             }
             return xPos;
-          })
-          .attr("cy", d => {
+        })
+        .attr("cy", d => {
             const yPos = (y(d.asset) || 0) + y.bandwidth() / 2;
             if (isNaN(yPos)) {
-              console.error('Invalid y position for:', d);
-              return 0;
+                console.error('Invalid y position for:', d);
+                return 0;
             }
             return yPos;
-          })
-          .attr("r", 4)
-          .attr("fill", d => colors[d.asset as keyof typeof colors]);
-
-        // Add count of positions for each asset
-        selectedAssets.forEach(asset => {
-          const count = positionData.filter(d => d.asset === asset).length;
-          svg.append("text")
-            .attr("x", width + 5)
-            .attr("y", (y(asset) || 0) + y.bandwidth() / 2)
-            .attr("dy", "0.35em")
-            .style("fill", "white")
-            .style("font-size", "10px")
-            .text(`(${count})`);
+        })
+        .attr("r", 4)
+        .attr("fill", d => {
+            const color = colors[d.asset as keyof typeof colors];
+            if (!color) {
+                console.error('No color found for asset:', d.asset);
+                return '#ffffff';
+            }
+            return color;
+        })
+        .on("mouseover", (event, d) => {
+          tooltip.style("opacity", 1)
+            .html(`
+              <div>Asset: ${d.asset}</div>
+              <div>Date: ${d.date}</div>
+              <div>Position: Active</div>
+            `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px");
+        })
+        .on("mouseout", () => {
+          tooltip.style("opacity", 0);
         });
 
-      } catch (error) {
-        console.error('Error drawing position markers:', error);
-        svg.append("text")
-          .attr("x", width / 2)
-          .attr("y", height / 2)
-          .attr("text-anchor", "middle")
-          .style("fill", "red")
-          .text(`Error drawing markers: ${(error as Error).message}`);
-      }
+      // Add position counts
+      selectedAssets.forEach(asset => {
+        try {
+            const count = positionData.filter(d => d.asset === asset).length;
+            
+            svg.append("text")
+                .attr("x", width + 5)
+                .attr("y", (y(asset) || 0) + y.bandwidth() / 2)
+                .attr("dy", "0.35em")
+                .style("fill", "white")
+                .style("font-size", "10px")
+                .text(`(${count})`);
+        } catch (error) {
+            console.error(`Error drawing count for ${asset}:`, error);
+        }
+      });
     };
 
     // Draw all charts
@@ -441,4 +525,4 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
   );
 };
 
-export default BacktestChart; 
+export default BacktestChart;
