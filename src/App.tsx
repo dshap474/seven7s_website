@@ -19,7 +19,7 @@ const Contact = () => (
     <div className="text-center">
       <p className="text-2xl mb-4">Twitter:</p>
       <a
-        href="https://x.com/_______seven7s"
+        href="https://x.com/0x_seven7s"
         target="_blank"
         rel="noopener noreferrer"
         className="text-6xl font-bold text-blue-300 hover:text-blue-400 transition-colors"
