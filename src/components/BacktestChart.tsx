@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import * as d3 from 'd3';
 
 interface BacktestChartProps {
@@ -19,10 +19,14 @@ type Position = {
   asset: string;
 };
 
+type ReferenceDate = string | null;
+
 const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) => {
   const performanceChartRef = useRef<SVGSVGElement>(null);
   const returnsChartRef = useRef<SVGSVGElement>(null);
   const positionChartRef = useRef<SVGSVGElement>(null);
+
+  const [referenceDate, setReferenceDate] = useState<ReferenceDate>(null);
 
   const colors = useMemo(() => ({
     ETH: '#627EEA',
@@ -32,7 +36,7 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
     IMX: '#00BFFF',
     MKR: '#1AAB9B',
     UNI: '#FF007A',
-    FET: '#4B0082',
+    FET: '#9B4DCA',
     DOGE: '#BA9F33',
   }), []);
 
@@ -189,6 +193,14 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .attr("class", "benchmark-point")
         .style("fill", "#FF6A00");
 
+      // Add vertical reference line
+      const verticalLine = svg.append("line")
+        .attr("class", "hover-line")
+        .style("stroke", "white")
+        .style("stroke-width", "1px")
+        .style("stroke-dasharray", "3,3")
+        .style("opacity", 0);
+
       // Portfolio line with hover
       svg.append("path")
         .datum(formattedData)
@@ -214,10 +226,12 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .on("mouseover", () => {
           focus.style("display", null);
           tooltip.style("opacity", 1);
+          verticalLine.style("opacity", 1);
         })
         .on("mouseout", () => {
           focus.style("display", "none");
           tooltip.style("opacity", 0);
+          verticalLine.style("opacity", 0);
         })
         .on("mousemove", (event) => {
           const mouseX = d3.pointer(event)[0];
@@ -226,6 +240,12 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
           const d0 = formattedData[i - 1];
           const d1 = formattedData[i];
           const d = x0.getTime() - new Date(d0.date).getTime() > new Date(d1.date).getTime() - x0.getTime() ? d1 : d0;
+
+          verticalLine
+            .attr("x1", x(new Date(d.date)))
+            .attr("x2", x(new Date(d.date)))
+            .attr("y1", 0)
+            .attr("y2", height);
 
           focus.select(".portfolio-point")
             .attr("transform", `translate(${x(new Date(d.date))},${y(d.portfolioValue)})`);
@@ -246,7 +266,7 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
 
     // Asset Returns Chart
     const drawReturnsChart = () => {
-      const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+      const margin = { top: 20, right: 80, bottom: 50, left: 60 };
       const width = returnsChartRef.current!.clientWidth - margin.left - margin.right;
       const height = 360 - margin.top - margin.bottom;
 
@@ -257,31 +277,34 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      // Add tooltip
-      const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("background", "rgba(0,0,0,0.8)")
-        .style("color", "white")
-        .style("padding", "8px")
-        .style("border-radius", "4px")
-        .style("font-size", "12px")
-        .style("pointer-events", "none")
-        .style("opacity", 0);
+      // Get initial values and calculate max/min multipliers
+      const initialValues = selectedAssets.reduce((acc, asset) => ({
+        ...acc,
+        [asset]: formattedData[0][`${asset}Return`]
+      }), {} as Record<string, number>);
 
-      // Scales
+      const maxMultiplier = Math.ceil(d3.max(formattedData, d => 
+        Math.max(...selectedAssets.map(asset => 
+          d[`${asset}Return`] / initialValues[asset]
+        ))
+      ) || 1);
+
+      const minMultiplier = Math.floor(d3.min(formattedData, d => 
+        Math.min(...selectedAssets.map(asset => 
+          d[`${asset}Return`] / initialValues[asset]
+        ))
+      ) || 1);
+
+      // Create scales
       const x = d3.scaleTime()
         .domain(d3.extent(formattedData, d => new Date(d.date)) as [Date, Date])
         .range([0, width]);
 
-      const y = d3.scaleLinear()
+      // Create logarithmic scale
+      const y = d3.scaleLog()
         .domain([
-          d3.min(formattedData, d => 
-            Math.min(...selectedAssets.map(asset => d[`${asset}Return`]))
-          ) as number * 0.9,
-          d3.max(formattedData, d => 
-            Math.max(...selectedAssets.map(asset => d[`${asset}Return`]))
-          ) as number * 1.1
+          Math.max(0.1, minMultiplier * 0.9), // Prevent going below 0.1x
+          maxMultiplier * 1.1
         ])
         .range([height, 0]);
 
@@ -293,31 +316,77 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .selectAll("text")
         .style("fill", "white");
 
-      // Add Y axis
+      // Generate even multiplier values dynamically
+      const generateEvenMultipliers = (min: number, max: number) => {
+        const multipliers = [];
+        // Handle values below 1
+        let value = 0.2;
+        while (value < 1 && value >= min) {
+          if (value >= y.domain()[0]) multipliers.push(value);
+          value += 0.2;
+        }
+        
+        // Handle values 1 and above
+        value = 1;
+        while (value <= max) {
+          if (value <= y.domain()[1]) multipliers.push(value);
+          // Use smaller steps for values under 10, larger steps after
+          value += (value < 10 ? 2 : 5);
+        }
+        return multipliers;
+      };
+
+      const yGridValues = generateEvenMultipliers(
+        Math.max(0.1, minMultiplier * 0.9),
+        maxMultiplier * 1.1
+      );
+
+      // Add Y axis with multiplier labels
       svg.append("g")
         .attr("class", "text-white")
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(y)
+          .tickValues(yGridValues)
+          .tickFormat((d: d3.NumberValue) => `${Number(d).toFixed(1)}×`))
+        .call(g => g.selectAll(".tick line").remove())
         .selectAll("text")
         .style("fill", "white");
 
-      // Add hover functionality
-      const bisect = d3.bisector((d: FormattedDataItem) => new Date(d.date)).left;
-      
-      const focus = svg.append("g")
-        .style("display", "none");
-
-      selectedAssets.forEach(asset => {
-        focus.append("circle")
-          .attr("r", 5)
-          .attr("class", `${asset}-point`)
-          .style("fill", colors[asset as keyof typeof colors]);
+      // Add grid lines with slightly increased visibility
+      yGridValues.forEach(value => {
+        if (value >= y.domain()[0] && value <= y.domain()[1]) {
+          svg.append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", y(value))
+            .attr("y2", y(value))
+            .attr("stroke", "white")
+            .attr("stroke-opacity", value === 1 ? 0.4 : 0.15) // Increased from 0.3/0.1
+            .attr("stroke-width", value === 1 ? 1 : 0.5);
+        }
       });
+
+      // Add vertical reference line
+      const rule = svg.append("line")
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "3,3")
+        .style("opacity", 0);
+
+      // Function to get normalized values relative to reference date
+      const getNormalizedValue = (d: FormattedDataItem, asset: string) => {
+        if (!referenceDate) return d[`${asset}Return`] / initialValues[asset];
+        
+        const refValue = formattedData.find(item => item.date === referenceDate)![`${asset}Return`];
+        return d[`${asset}Return`] / refValue;
+      };
 
       // Add lines for each asset
       selectedAssets.forEach(asset => {
         const line = d3.line<FormattedDataItem>()
           .x(d => x(new Date(d.date)))
-          .y(d => y(d[`${asset}Return`]));
+          .y(d => y(getNormalizedValue(d, asset)));
 
         svg.append("path")
           .datum(formattedData)
@@ -325,44 +394,40 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
           .attr("stroke", colors[asset as keyof typeof colors])
           .attr("stroke-width", 1.5)
           .attr("d", line);
+
+        // Add labels at the end of lines
+        const lastPoint = formattedData[formattedData.length - 1];
+        svg.append("text")
+          .attr("x", width + 5)
+          .attr("y", y(getNormalizedValue(lastPoint, asset)))
+          .attr("dy", "0.35em")
+          .attr("fill", colors[asset as keyof typeof colors])
+          .style("font-size", "12px")
+          .text(asset);
       });
 
-      // Add hover overlay
+      // Add hover interaction
       svg.append("rect")
         .attr("width", width)
         .attr("height", height)
         .style("fill", "none")
         .style("pointer-events", "all")
-        .on("mouseover", () => {
-          focus.style("display", null);
-          tooltip.style("opacity", 1);
+        .on("mousemove", (event) => {
+          const [mouseX] = d3.pointer(event);
+          const date = x.invert(mouseX);
+          const bisect = d3.bisector((d: FormattedDataItem) => new Date(d.date)).left;
+          const index = bisect(formattedData, date);
+          const d = formattedData[index];
+
+          rule
+            .style("opacity", 1)
+            .attr("transform", `translate(${x(new Date(d.date))},0)`);
+
+          setReferenceDate(d.date);
         })
         .on("mouseout", () => {
-          focus.style("display", "none");
-          tooltip.style("opacity", 0);
-        })
-        .on("mousemove", (event) => {
-          const mouseX = d3.pointer(event)[0];
-          const x0 = x.invert(mouseX);
-          const i = bisect(formattedData, x0, 1);
-          const d0 = formattedData[i - 1];
-          const d1 = formattedData[i];
-          const d = x0.getTime() - new Date(d0.date).getTime() > new Date(d1.date).getTime() - x0.getTime() ? d1 : d0;
-
-          selectedAssets.forEach(asset => {
-            focus.select(`.${asset}-point`)
-              .attr("transform", `translate(${x(new Date(d.date))},${y(d[`${asset}Return`])})`);
-          });
-
-          tooltip
-            .html(`
-              <div>Date: ${d.date}</div>
-              ${selectedAssets.map(asset => 
-                `<div style="color:${colors[asset as keyof typeof colors]}">${asset}: ${d[`${asset}Return`].toFixed(2)}</div>`
-              ).join('')}
-            `)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 10) + "px");
+          rule.style("opacity", 0);
+          setReferenceDate(null);
         });
     };
 
@@ -426,6 +491,14 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         .style("pointer-events", "none")
         .style("opacity", 0);
 
+      // Add vertical reference line
+      const verticalLine = svg.append("line")
+        .attr("class", "hover-line")
+        .style("stroke", "white")
+        .style("stroke-width", "1px")
+        .style("stroke-dasharray", "3,3")
+        .style("opacity", 0);
+
       // When drawing markers, add error handling and hover effects
       svg.selectAll(".position-marker")
         .data(positionData)
@@ -487,6 +560,46 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
             console.error(`Error drawing count for ${asset}:`, error);
         }
       });
+
+      // Add hover interaction overlay
+      svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("mouseover", () => {
+          verticalLine.style("opacity", 1);
+          tooltip.style("opacity", 1);
+        })
+        .on("mouseout", () => {
+          verticalLine.style("opacity", 0);
+          tooltip.style("opacity", 0);
+        })
+        .on("mousemove", (event) => {
+          const [mouseX] = d3.pointer(event);
+          const date = x.invert(mouseX);
+          const bisect = d3.bisector((d: FormattedDataItem) => new Date(d.date)).left;
+          const index = bisect(formattedData, date);
+          const d = formattedData[index];
+
+          verticalLine
+            .attr("x1", x(new Date(d.date)))
+            .attr("x2", x(new Date(d.date)))
+            .attr("y1", 0)
+            .attr("y2", height);
+
+          // Find active positions for this date
+          const activePositions = positionData.filter(p => p.date === d.date);
+          
+          tooltip.style("opacity", 1)
+            .html(`
+              <div>Date: ${d.date}</div>
+              <div>Active Positions: ${activePositions.length}</div>
+              ${activePositions.map(p => `<div>${p.asset}</div>`).join('')}
+            `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px");
+        });
     };
 
     // Draw all charts
@@ -503,7 +616,7 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [formattedData, selectedAssets, colors]);
+  }, [formattedData, selectedAssets, colors, referenceDate]);
 
   return (
     <div className="space-y-4">
@@ -513,13 +626,13 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
       </div>
 
       <div className="h-[400px] bg-[#131722] p-4 rounded-lg border border-gray-800">
-        <h3 className="text-white mb-4">Asset Cumulative Returns</h3>
-        <svg ref={returnsChartRef} width="100%" height="360" />
+        <h3 className="text-white mb-4">Position Timeline</h3>
+        <svg ref={positionChartRef} width="100%" height="360" />
       </div>
 
       <div className="h-[400px] bg-[#131722] p-4 rounded-lg border border-gray-800">
-        <h3 className="text-white mb-4">Position Timeline</h3>
-        <svg ref={positionChartRef} width="100%" height="360" />
+        <h3 className="text-white mb-4">Asset Cumulative Returns</h3>
+        <svg ref={returnsChartRef} width="100%" height="360" />
       </div>
     </div>
   );

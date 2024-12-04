@@ -5,9 +5,9 @@ import BacktestChart from './components/BacktestChart';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
-  <div className="text-white flex items-center justify-center h-full">
+  <div className="absolute inset-0 flex items-center justify-center">
     <div className="text-center">
-      <p className="max-w-2xl">
+      <p className="max-w-2xl text-white">
         seven7s is an open-source AI investment collective with the objective function of achieving financial escape velocity
       </p>
     </div>
@@ -15,9 +15,9 @@ const ObjectiveFunction = () => (
 );
 
 const Contact = () => (
-  <div className="text-white flex items-center justify-center h-full">
+  <div className="absolute inset-0 flex items-center justify-center">
     <div className="text-center">
-      <p className="text-2xl mb-4">Twitter:</p>
+      <p className="text-2xl mb-4 text-white">Twitter:</p>
       <a
         href="https://x.com/0x_seven7s"
         target="_blank"
@@ -85,23 +85,27 @@ const Strategies = () => {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <h1 className="text-white text-3xl font-bold mb-8">Trading Strategy Performance</h1>
-      
-      <div className="mb-8">
-        <BacktestMetrics metrics={summaryData} />
-      </div>
+    <div className="h-full overflow-y-auto">
+      <div className="min-h-full bg-black p-8 max-w-7xl mx-auto">
+        <h1 className="text-white text-3xl font-bold mb-8">Trading Strategy Performance</h1>
+        
+        <div className="mb-8">
+          <BacktestMetrics metrics={summaryData} />
+        </div>
 
-      <BacktestChart 
-        data={timeseriesData} 
-        selectedAssets={assets}
-      />
+        <div className="mb-16">
+          <BacktestChart 
+            data={timeseriesData} 
+            selectedAssets={assets}
+          />
+        </div>
+      </div>
     </div>
   );
 };
 
 const LaunchPage = () => (
-  <div className="relative flex flex-col items-center justify-center h-full overflow-hidden">
+  <div className="absolute inset-0 flex flex-col items-center justify-center">
     <div className="absolute inset-0 flex items-center justify-center">
       <img 
         src="/god_particle.png" 
@@ -173,15 +177,17 @@ const Analytics: React.FC = () => {
   if (!data) return <div className="text-white">No data available</div>;
 
   return (
-    <div className="text-white p-4 overflow-y-auto h-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.entries(data).map(([key, value]) => (
-          <div key={key} className="bg-[#131722] p-4 rounded-lg h-[600px] border border-gray-800">
-            <div className="h-full">
-              <DataChart data={value} title={key.replace(/_/g, ' ')} />
+    <div className="h-full overflow-y-auto">
+      <div className="text-white p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Object.entries(data).map(([key, value]) => (
+            <div key={key} className="bg-[#131722] p-4 rounded-lg h-[600px] border border-gray-800">
+              <div className="h-full">
+                <DataChart data={value} title={key.replace(/_/g, ' ')} />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -231,7 +237,7 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-black">
-      <header className="bg-black text-white p-4 h-14 border-b border-gray-400">
+      <header className="bg-black text-white p-4 h-14 border-b border-gray-400 flex-shrink-0">
         <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center h-full">
           <button
             onClick={() => setActiveTab('Launch')}
@@ -258,10 +264,8 @@ function App() {
           </nav>
         </div>
       </header>
-      <main className="flex-grow overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
-        </div>
+      <main className="flex-1 relative bg-black">
+        {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
       </main>
     </div>
   );
