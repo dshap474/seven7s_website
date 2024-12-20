@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataChart from './components/DataChart';
 import BacktestMetrics from './components/BacktestMetrics';
 import BacktestChart from './components/BacktestChart';
+import Intelligence from '@/components/Intelligence';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -198,6 +199,7 @@ const tabs = [
   { name: 'Objective Function', component: ObjectiveFunction },
   { name: 'Analytics', component: Analytics },
   { name: 'Strategies', component: Strategies },
+  { name: 'Intelligence', component: Intelligence },
   { name: 'Contact', component: Contact },
 ];
 
