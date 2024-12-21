@@ -32,3 +32,7 @@ next-env.d.ts
 
 # Manifest
 public/intelligence_data/manifest.json
+
+# Exclude intelligence data from git but keep the directory
+/public/intelligence_data/*
+!/public/intelligence_data/.gitkeep

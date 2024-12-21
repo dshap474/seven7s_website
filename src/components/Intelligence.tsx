@@ -136,41 +136,70 @@ const Intelligence: React.FC = () => {
         const manifestResponse = await fetch(manifestUrl);
         
         if (!manifestResponse.ok) {
+          const contentType = manifestResponse.headers.get('content-type');
+          console.error('Manifest response status:', manifestResponse.status);
+          console.error('Content-Type:', contentType);
+          
           const text = await manifestResponse.text();
-          console.error('Manifest response:', text);
-          throw new Error(`Failed to fetch manifest: ${manifestResponse.status} ${manifestResponse.statusText}`);
+          console.error('Response text:', text.substring(0, 200)); // Log first 200 chars
+          
+          throw new Error(`Failed to fetch manifest (${manifestResponse.status}): Invalid response`);
+        }
+
+        let fileList: string[];
+        try {
+          fileList = await manifestResponse.json();
+        } catch (jsonError) {
+          console.error('JSON Parse Error:', jsonError);
+          throw new Error('Failed to parse manifest.json - invalid JSON format');
         }
         
-        const fileList: string[] = await manifestResponse.json();
-        
-        if (!Array.isArray(fileList) || fileList.length === 0) {
-          throw new Error('No files found in manifest');
+        if (!Array.isArray(fileList)) {
+          console.error('Unexpected manifest format:', fileList);
+          throw new Error('Manifest data is not an array');
         }
-        
+
+        if (fileList.length === 0) {
+          console.warn('Manifest is empty');
+          setFiles([]);
+          setLoading(false);
+          return;
+        }
+
         const filePromises = fileList.map(async (fileName) => {
           const fileUrl = `/intelligence_data/${fileName}`;
-          const contentResponse = await fetch(fileUrl);
-          
-          if (!contentResponse.ok) {
-            const text = await contentResponse.text();
-            console.error(`Response for ${fileName}:`, text);
-            throw new Error(`Failed to fetch ${fileName}: ${contentResponse.status} ${contentResponse.statusText}`);
+          try {
+            const contentResponse = await fetch(fileUrl);
+            
+            if (!contentResponse.ok) {
+              console.error(`Failed to fetch ${fileName}:`, contentResponse.status);
+              throw new Error(`Failed to fetch ${fileName}`);
+            }
+            
+            const content = await contentResponse.text();
+            const sentiment = extractSentiment(content);
+            
+            return {
+              name: fileName,
+              content,
+              displayName: formatDisplayName(fileName, content),
+              category: categorizeFile(fileName),
+              sentiment
+            };
+          } catch (fileError) {
+            console.error(`Error fetching ${fileName}:`, fileError);
+            // Skip failed files instead of failing completely
+            return null;
           }
-          
-          const content = await contentResponse.text();
-          const sentiment = extractSentiment(content);
-          console.log(`File: ${fileName}, Sentiment: ${sentiment}`); // Debug log
-          
-          return {
-            name: fileName,
-            content,
-            displayName: formatDisplayName(fileName, content),
-            category: categorizeFile(fileName),
-            sentiment
-          };
         });
 
-        const fileData = await Promise.all(filePromises);
+        const fileData = (await Promise.all(filePromises))
+          .filter((file): file is NonNullable<typeof file> => file !== null);
+
+        if (fileData.length === 0) {
+          throw new Error('No files could be loaded');
+        }
+
         setFiles(fileData);
         
         // Set first file of selected category as default

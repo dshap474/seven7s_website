@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    watch: {
+      usePolling: true,
+    },
   },
   build: {
     outDir: 'dist',
@@ -14,7 +17,9 @@ export default defineConfig({
       output: {
         manualChunks: undefined
       }
-    }
+    },
+    assetsDir: 'assets',
+    copyPublicDir: true,
   },
   resolve: {
     alias: {
