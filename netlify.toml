@@ -2,12 +2,9 @@
   command = "npm run build"
   publish = "dist"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
 # Add build settings to ensure proper file permissions
 [build.environment]
-  NODE_VERSION = "18.x"
+  NODE_VERSION = "18.17.0"
   NPM_FLAGS = "--no-optional"
 
 [[redirects]]
