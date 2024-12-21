@@ -238,8 +238,8 @@ function App() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-black">
-      <header className="bg-black text-white p-4 h-14 border-b border-gray-400 flex-shrink-0">
+    <div className="flex flex-col min-h-screen bg-black">
+      <header className="fixed top-0 left-0 right-0 bg-black text-white p-4 h-14 border-b border-gray-400 z-50">
         <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center h-full">
           <button
             onClick={() => setActiveTab('Launch')}
@@ -266,8 +266,10 @@ function App() {
           </nav>
         </div>
       </header>
-      <main className="flex-1 relative bg-black">
-        {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
+      <main className="flex-1 bg-black pt-14">
+        <div className="h-full">
+          {React.createElement(tabs.find((tab) => tab.name === activeTab)?.component || (() => null))}
+        </div>
       </main>
     </div>
   );

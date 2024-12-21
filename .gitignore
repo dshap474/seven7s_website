@@ -29,3 +29,6 @@ yarn-error.log*
 # Typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Manifest
+public/intelligence_data/manifest.json
