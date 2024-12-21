@@ -4,7 +4,7 @@ import path from 'path';
 
 const router = express.Router();
 
-router.get('/api/intelligence-files', (req, res) => {
+router.get('/api/intelligence-files', (_req, res) => {
   try {
     const directoryPath = path.join(process.cwd(), 'public', 'intelligence_data');
     const files = fs.readdirSync(directoryPath)
