@@ -4,13 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "npm run generate-manifest && vite",
-    "build": "tsc && vite build",
+    "build": "npm install @rollup/rollup-linux-x64-gnu && tsc && vite build",
     "serve": "vite preview",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "generate-manifest": "npx tsx scripts/generate-manifest.ts"
   },
   "dependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.6.1",
     "@types/node": "^20.10.0",
     "chart.js": "^4.4.1",
     "chartjs-plugin-annotation": "^3.0.1",

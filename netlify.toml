@@ -7,7 +7,7 @@
 
 # Add build settings to ensure proper file permissions
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "18.x"
   NPM_FLAGS = "--no-optional"
 
 [[redirects]]
