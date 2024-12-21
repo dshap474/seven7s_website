@@ -7,6 +7,11 @@
   NODE_VERSION = "18.17.0"
   NPM_FLAGS = "--no-optional"
 
+[[headers]]
+  for = "/*.json"
+  [headers.values]
+    Content-Type = "application/json"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

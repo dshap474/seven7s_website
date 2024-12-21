@@ -21,6 +21,7 @@ export default defineConfig({
     assetsDir: 'assets',
     copyPublicDir: true,
   },
+  publicDir: 'public',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')

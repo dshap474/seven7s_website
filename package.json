@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run generate-manifest && vite",
-    "build": "npm install @rollup/rollup-linux-x64-gnu && tsc && vite build",
+    "build": "npm run generate-manifest && npm install @rollup/rollup-linux-x64-gnu && tsc && vite build",
     "serve": "vite preview",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
