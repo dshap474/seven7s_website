@@ -1,13 +1,11 @@
-<daily_overview>
+Daily Overview
 The global economic landscape is characterized by complex challenges, including declining population growth, potential market volatility, and shifting monetary policies. The Federal Reserve is navigating a delicate balance between managing inflation, supporting economic growth, and preventing market overstimulation, while governments worldwide face increasing fiscal pressures and economic uncertainties.
-</daily_overview>
 
-<crypto_market_important_information>
+Crypto
 - Experimental AI project S.A.N demonstrates innovative approach to using artificial intelligence for environmental communication
 - Potential intersection of AI technology and environmental awareness could create new investment opportunities in tech and sustainability sectors
-</crypto_market_important_information>
 
-<macroeconomic_and_stock_market_important_information>
+Macro
 - Population decline threatens global economic growth, with most regions experiencing falling birth rates
 - Federal Reserve expected to make 3-4 rate cuts in 2025 as economic growth decelerates
 - US GDP tracking over 3%, with 4.25% unemployment rate
@@ -18,16 +16,9 @@ The global economic landscape is characterized by complex challenges, including 
   - Anticipated Trump administration policies
   - Possible stimulus from China
   - Potential positive supply shocks in labor market
-</macroeconomic_and_stock_market_important_information>
 
 Overarching Themes and Trends
 - Global economic models require fundamental restructuring to address population decline
 - Increasing market intolerance for excessive government spending
 - Potential market rotation from mega-cap tech stocks to cyclical and small-cap sectors
 - Geopolitical and economic uncertainties creating complex investment landscape
-
-
-Sentiment:
-Neutral
-
-Rationale: The economic outlook presents a mixed picture with both potential challenges and opportunities. While there are signs of economic slowdown and market volatility, strong employment rates and potential policy interventions suggest a balanced, cautious approach is warranted. The complexity of global economic conditions prevents a strongly bullish or bearish stance, resulting in a neutral sentiment.
