@@ -43,7 +43,7 @@ const Strategies = () => {
     const fetchData = async () => {
       try {
         // Fetch summary data
-        const summaryResponse = await fetch('/dashboard_data/backtest_summary.csv');
+        const summaryResponse = await fetch('/dashboard_data/multi_asset_momentum_with_20wma_summary.csv');
         const summaryText = await summaryResponse.text();
         const summaryRows = summaryText.split('\n')
           .filter(row => row.trim())
@@ -56,7 +56,7 @@ const Strategies = () => {
           });
 
         // Fetch timeseries data
-        const timeseriesResponse = await fetch('/dashboard_data/backtest_timeseries.csv');
+        const timeseriesResponse = await fetch('/dashboard_data/multi_asset_momentum_with_20wma_timeseries.csv');
         const timeseriesText = await timeseriesResponse.text();
         const [headers, ...rows] = timeseriesText.split('\n').filter(row => row.trim());
         const headerArray = headers.split(',');
