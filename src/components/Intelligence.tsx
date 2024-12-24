@@ -34,7 +34,7 @@ const extractSentiment = (content: string): string => {
   return '';
 };
 
-const formatDisplayName = (fileName: string, content?: string): string | { date: string } => {
+const formatDisplayName = (fileName: string): string | { date: string } => {
   // Special handling for daily summaries
   if (fileName.includes('daily-summary')) {
     const dateMatch = fileName.match(/(\d{4})-(\d{2})-(\d{2})/);
@@ -176,7 +176,7 @@ const Intelligence: React.FC = () => {
             return {
               name: fileName,
               content,
-              displayName: formatDisplayName(fileName, content),
+              displayName: formatDisplayName(fileName),
               category: categorizeFile(fileName),
               sentiment
             };
