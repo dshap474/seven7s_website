@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 interface FileData {
   name: string;
   content: string;
-  displayName: string | { date: string; sentiment: string };
+  displayName: string | { date: string };
   category: 'crypto' | 'macro' | 'trading' | 'daily-summaries';
   sentiment?: string;
 }
@@ -34,7 +34,7 @@ const extractSentiment = (content: string): string => {
   return '';
 };
 
-const formatDisplayName = (fileName: string, content?: string): string | { date: string; sentiment: string } => {
+const formatDisplayName = (fileName: string, content?: string): string | { date: string } => {
   // Special handling for daily summaries
   if (fileName.includes('daily-summary')) {
     const dateMatch = fileName.match(/(\d{4})-(\d{2})-(\d{2})/);
@@ -47,14 +47,8 @@ const formatDisplayName = (fileName: string, content?: string): string | { date:
         day: 'numeric'
       });
       
-      let sentiment = '';
-      if (content) {
-        sentiment = extractSentiment(content);
-      }
-      
       return {
-        date: formattedDate,
-        sentiment: sentiment || ''
+        date: formattedDate
       };
     }
   }
@@ -381,11 +375,9 @@ const Intelligence: React.FC = () => {
                           </React.Fragment>
                         ))
                       ) : (
-                        // Daily summary display with centered separator
-                        <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-3">
-                          <div className="text-right">{file.displayName.date}</div>
-                          <div className="text-gray-500">|</div>
-                          <div className="text-left">{file.displayName.sentiment}</div>
+                        // Daily summary display - simplified to just show date
+                        <div className="text-center">
+                          {file.displayName.date}
                         </div>
                       )}
                     </div>
