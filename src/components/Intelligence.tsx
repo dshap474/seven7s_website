@@ -114,6 +114,39 @@ const extractDate = (fileName: string): string => {
 
 const ITEMS_PER_PAGE = 25;
 
+const formatContent = (content: string): string => {
+  // Split content into lines
+  const lines = content.split('\n');
+  const formattedLines: string[] = [];
+  let currentIndentation = '';
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // If line starts with a bullet point (- or •)
+    if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+      // Store the indentation level (space from start of line to first character after bullet)
+      const bulletMatch = line.match(/^(\s*[-•]\s+)/);
+      if (bulletMatch) {
+        currentIndentation = ' '.repeat(bulletMatch[1].length);
+      }
+      formattedLines.push(line);
+    } else if (line.trim() === '') {
+      // Reset indentation for empty lines
+      currentIndentation = '';
+      formattedLines.push(line);
+    } else if (currentIndentation && line.trim()) {
+      // If we're in a bullet point context and line isn't empty, indent the line
+      formattedLines.push(currentIndentation + line.trim());
+    } else {
+      // Regular line, no special formatting
+      formattedLines.push(line);
+    }
+  }
+  
+  return formattedLines.join('\n');
+};
+
 const Intelligence: React.FC = () => {
   const [files, setFiles] = useState<FileData[]>([]);
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
@@ -414,7 +447,7 @@ const Intelligence: React.FC = () => {
                   : selectedFile.displayName.date}
               </h2>
               <div className="bg-gray-900 rounded-lg p-6 whitespace-pre-wrap text-gray-300 font-mono">
-                {selectedFile.content}
+                {formatContent(selectedFile.content)}
               </div>
             </div>
           ) : (
