@@ -413,15 +413,8 @@ const Intelligence: React.FC = () => {
                   ? selectedFile.displayName
                   : selectedFile.displayName.date}
               </h2>
-              <div className="bg-gray-900 rounded-lg p-6 text-gray-300 font-mono [&>p]:mb-4 bullet-list">
-                {selectedFile.content.split('\n').map((line, index) => (
-                  <p key={index} className={`
-                    whitespace-pre-wrap
-                    ${line.trim().startsWith('-') ? 'bullet-point' : 'continuation-line'}
-                  `}>
-                    {line}
-                  </p>
-                ))}
+              <div className="bg-gray-900 rounded-lg p-6 whitespace-pre-wrap text-gray-300 font-mono">
+                {selectedFile.content}
               </div>
             </div>
           ) : (
