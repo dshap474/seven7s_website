@@ -105,20 +105,22 @@ const Strategies = () => {
   );
 };
 
-const LaunchPage = () => (
-  <div className="absolute inset-0 flex flex-col items-center justify-center">
-    <div className="absolute inset-0 flex items-center justify-center">
-      <img 
-        src="/god_particle.png" 
-        alt="God Particle" 
-        className="w-[70%] h-[70%] object-contain"
-      />
+const LaunchPage = () => {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black">
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <img 
+          src="/god_particle.png" 
+          alt="God Particle" 
+          className="w-[70%] h-[70%] object-contain"
+        />
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center z-20">
+        <h1 className="text-white text-7xl font-bold"></h1>
+      </div>
     </div>
-    <div className="absolute inset-0 flex items-center justify-center">
-      <h1 className="text-white text-7xl font-bold"></h1>
-    </div>
-  </div>
-);
+  );
+};
 
 interface ChartData {
   index: string;
