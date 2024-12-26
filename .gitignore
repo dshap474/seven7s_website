@@ -36,3 +36,8 @@ public/intelligence_data/manifest.json
 # Exclude intelligence data from git but keep the directory
 /public/intelligence_data/*
 !/public/intelligence_data/.gitkeep
+
+# Platform specific packages
+**/node_modules/**/*-win32-*
+**/node_modules/**/*-darwin-*
+**/node_modules/**/*-linux-*
