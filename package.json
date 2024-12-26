@@ -9,7 +9,7 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "generate-manifest": "npx tsx scripts/generate-manifest.ts",
-    "postinstall": "node ./scripts/fix-dependencies.js"
+    "postinstall": "node ./scripts/fix-dependencies.mjs"
   },
   "dependencies": {
     "@types/node": "^20.10.0",

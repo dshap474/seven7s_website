@@ -1,11 +1,16 @@
-const fs = require('fs');
-const path = require('path');
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { existsSync, readdirSync, statSync, rmSync } from 'fs';
+
+// Get current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Function to remove platform-specific packages
 function removePlatformSpecificPackages() {
-  const nodeModulesPath = path.join(process.cwd(), 'node_modules');
+  const nodeModulesPath = join(dirname(__dirname), 'node_modules');
   
-  if (!fs.existsSync(nodeModulesPath)) {
+  if (!existsSync(nodeModulesPath)) {
     return;
   }
 
@@ -16,16 +21,16 @@ function removePlatformSpecificPackages() {
   ];
 
   function searchAndRemove(dir) {
-    const files = fs.readdirSync(dir);
+    const files = readdirSync(dir);
     
     files.forEach(file => {
-      const fullPath = path.join(dir, file);
-      const stat = fs.statSync(fullPath);
+      const fullPath = join(dir, file);
+      const stat = statSync(fullPath);
       
       if (stat.isDirectory()) {
         if (platformSpecificPatterns.some(pattern => 
           file.includes(pattern.replace('*', '')))) {
-          fs.rmSync(fullPath, { recursive: true, force: true });
+          rmSync(fullPath, { recursive: true, force: true });
         } else {
           searchAndRemove(fullPath);
         }
