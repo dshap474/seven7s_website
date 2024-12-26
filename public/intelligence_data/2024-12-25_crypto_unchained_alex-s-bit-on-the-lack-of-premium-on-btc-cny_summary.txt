@@ -1,5 +1,6 @@
 Key Insight
 Contrary to popular belief, Bitcoin is not a primary method for capital outflow from China, with tether and other means being more prevalent for moving money out of the country.
+
 <list_of_important_information>
 - There is rarely a premium on Bitcoin/CNY OTC market trades
 - Tether is perceived as a more accessible store of value in China compared to Bitcoin

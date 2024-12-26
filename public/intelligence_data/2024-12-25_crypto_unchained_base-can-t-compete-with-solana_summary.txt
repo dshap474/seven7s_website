@@ -1,5 +1,6 @@
 Key Insight
 Base blockchain infrastructure faces significant competitive challenges against Solana, primarily due to concerns about decentralization, scalability, and the potential parasitic nature of corporate Layer 2 solutions.
+
 <list_of_important_information>
 - The speaker argues that Base cannot compete long-term with Solana
 - Current perceptions of Base's competitiveness are based on speed and low transaction costs

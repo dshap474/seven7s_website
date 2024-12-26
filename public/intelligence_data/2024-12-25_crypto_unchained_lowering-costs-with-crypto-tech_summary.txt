@@ -1,5 +1,6 @@
 Key Insight
 Crypto technology can significantly reduce operational costs for financial services, potentially creating substantial efficiency gains and cost savings across traditional brokerage and trading platforms.
+
 <list_of_important_information>
 - Replacing brick-and-mortar infrastructure with software can dramatically lower operational expenses
 - Robinhood reports crypto business operational costs are over 10 times lower than traditional brokerage operations
