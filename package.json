@@ -4,11 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "npm run generate-manifest && vite",
-    "build": "npm run generate-manifest && tsc && vite build",
+    "build": "npm run generate-manifest && tsc && vite build --emptyOutDir",
     "serve": "vite preview",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "generate-manifest": "npx tsx scripts/generate-manifest.ts"
+    "generate-manifest": "npx tsx scripts/generate-manifest.ts",
+    "postinstall": "node ./scripts/fix-dependencies.js"
   },
   "dependencies": {
     "@types/node": "^20.10.0",
@@ -40,6 +41,9 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "vite": "^4.5.0"
+  },
+  "overrides": {
+    "rollup": "^3.29.0"
   }
 }
