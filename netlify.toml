@@ -5,7 +5,7 @@
 # Add build settings to ensure proper file permissions
 [build.environment]
   NODE_VERSION = "18.17.0"
-  NPM_FLAGS = "--no-optional"
+  NPM_FLAGS = "--no-optional --legacy-peer-deps"
 
 [[headers]]
   for = "/*.json"
