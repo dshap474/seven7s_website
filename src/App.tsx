@@ -42,6 +42,7 @@ const Strategies = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching strategy data...');
         // Fetch summary data
         const summaryResponse = await fetch('/dashboard_data/multi_asset_momentum_with_20wma_summary.csv');
         const summaryText = await summaryResponse.text();
@@ -69,10 +70,13 @@ const Strategies = () => {
           }, {});
         });
 
+        console.log('Fetched summary data:', summaryRows);
+        console.log('Fetched timeseries data sample:', timeseriesRows[0]);
+        
         setSummaryData(summaryRows);
         setTimeseriesData(timeseriesRows);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching strategy data:', error);
       } finally {
         setLoading(false);
       }
@@ -80,6 +84,12 @@ const Strategies = () => {
 
     fetchData();
   }, []);
+
+  console.log('Strategies rendering with:', {
+    summaryDataLength: summaryData.length,
+    timeseriesDataLength: timeseriesData.length,
+    loading
+  });
 
   if (loading) {
     return <div className="text-white text-center p-8">Loading...</div>;
@@ -90,15 +100,19 @@ const Strategies = () => {
       <div className="min-h-full bg-black p-8 max-w-7xl mx-auto">
         <h1 className="text-white text-3xl font-bold mb-8">Trading Strategy Performance</h1>
         
-        <div className="mb-8">
-          <BacktestMetrics metrics={summaryData} />
-        </div>
+        <div className="flex gap-8">
+          {/* Metrics Column */}
+          <div className="w-64 shrink-0">
+            <BacktestMetrics metrics={summaryData} />
+          </div>
 
-        <div className="mb-16">
-          <BacktestChart 
-            data={timeseriesData} 
-            selectedAssets={assets}
-          />
+          {/* Charts Column */}
+          <div className="flex-1 space-y-8">
+            <BacktestChart 
+              data={timeseriesData} 
+              selectedAssets={assets}
+            />
+          </div>
         </div>
       </div>
     </div>

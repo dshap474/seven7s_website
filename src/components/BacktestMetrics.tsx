@@ -36,18 +36,18 @@ const BacktestMetrics: React.FC<BacktestMetricsProps> = ({ metrics }) => {
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[#131722] rounded-lg border border-gray-800">
+    <div className="bg-[#131722] rounded-lg border border-gray-800 p-3 space-y-2 h-[800px]">
       {/* Strategy Title Box */}
-      <div className="p-4 bg-black/30 rounded-lg">
-        <h3 className="text-[#FF6A00] text-sm font-medium mb-1">Strategy</h3>
-        <p className="text-white text-lg font-bold">Equal Weighted Large Cap Momentum</p>
+      <div className="p-2 bg-black/30 rounded-lg">
+        <h3 className="text-[#FF6A00] text-xs font-medium mb-0.5">Strategy</h3>
+        <p className="text-white text-sm font-bold">Equal Weighted Large Cap Momentum</p>
       </div>
       
       {/* Remaining Metrics */}
       {metrics.slice(1).map(({ Metric, Value }) => (
-        <div key={Metric} className="p-4 bg-black/30 rounded-lg">
-          <h3 className="text-[#FF6A00] text-sm font-medium mb-1">{Metric}</h3>
-          <p className="text-white text-lg font-bold">{formatValue(Metric, Value)}</p>
+        <div key={Metric} className="p-2 bg-black/30 rounded-lg">
+          <h3 className="text-[#FF6A00] text-xs font-medium mb-0.5">{Metric}</h3>
+          <p className="text-white text-sm font-bold">{formatValue(Metric, Value)}</p>
         </div>
       ))}
     </div>
