@@ -1,0 +1,13 @@
+Key Insight
+Lido is transitioning from a single liquid staking product to a modular platform that enables customized staking products, addressing the fragmentation in the liquid staking ecosystem and meeting diverse institutional and reaking market demands.
+
+<list_of_important_information>
+- Liquid staking ecosystem has become more heterogeneous, with emerging segments like reaking and institutional staking
+- Lido is developing "staking vaults" to allow organizations to create personalized staking products while leveraging Lido's infrastructure and stETH liquidity
+- The protocol aims to create a market for validators with more flexible compensation based on different operational costs and decentralization contributions
+- Institutional adoption of liquid staking is growing, with an estimated 25% of stETH users already being institutions
+- Lido is focusing on becoming the primary collateral in reaking rather than creating a separate liquid restaking token
+- The protocol is preparing to implement dual governance, which will give token holders explicit rights to exit or pause the protocol
+- Ethereum's development is prioritizing incremental L1 improvements and supporting L2 growth, with a focus on user experience and application development
+- The project is cautious about returning capital to token holders, believing reinvestment in protocol development is more critical at this stage
+Key Insights
