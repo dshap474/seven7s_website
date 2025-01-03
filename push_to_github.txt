@@ -1,5 +1,0 @@
--- POWERSHELL --
-git add . && git commit -m "your message" && git push origin main
-
--- CMD --
-git add .; git commit -m "your message"; git push origin main
