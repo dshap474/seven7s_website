@@ -48,13 +48,14 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
     UNI: '#FF007A',
     FET: '#9B4DCA',
     DOGE: '#BA9F33',
+
     // Mid cap assets
-    SUI: '#6916FF',
-    AAVE: '#B6509E',
-    AERO: '#00FF9D',
-    WELL: '#00FFFF',
+    SUI: '#00d1ff',
+    AAVE: '#6600ff',
+    AERO: '#FF0420',
+    WELL: '#9700ff',
     HNT: '#474DFF',
-    PRIME: '#FFB800',
+    PRIME: '#FF6B00',
     PEPE: '#00B906'
   }), []);
 
@@ -673,20 +674,19 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
         <div className="inline-flex rounded-lg bg-[#1E222D] p-0.5">
           <button
             onClick={() => setChartView('performance')}
-            className={`px-4 py-2 rounded-l-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors ${
               chartView === 'performance'
-                ? 'bg-[#2A2F3D] text-white'
+                ? 'bg-[#1D4ED8] text-white'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
             Performance
           </button>
-          <div className="w-px bg-gray-700 my-2" />
           <button
             onClick={() => setChartView('returns')}
-            className={`px-4 py-2 rounded-r-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors ${
               chartView === 'returns'
-                ? 'bg-[#2A2F3D] text-white'
+                ? 'bg-[#1D4ED8] text-white'
                 : 'text-gray-400 hover:text-white'
             }`}
           >

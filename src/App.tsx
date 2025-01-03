@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import DataChart from './components/DataChart';
 import BacktestMetrics from './components/BacktestMetrics';
 import BacktestChart from './components/BacktestChart';
@@ -50,6 +50,28 @@ const Strategies = () => {
     large_cap: ['ETH', 'SOL', 'LINK', 'OP', 'IMX', 'MKR', 'UNI', 'FET', 'DOGE'],
     mid_cap: ['SOL', 'SUI', 'LINK', 'AAVE', 'AERO', 'WELL', 'HNT', 'PRIME', 'PEPE', 'DOGE']
   };
+
+  const colors = useMemo(() => ({
+    // Large cap assets
+    ETH: '#627EEA',
+    SOL: '#00FFA3',
+    LINK: '#2A5ADA',
+    OP: '#FF0420',
+    IMX: '#00BFFF',
+    MKR: '#1AAB9B',
+    UNI: '#FF007A',
+    FET: '#9B4DCA',
+    DOGE: '#BA9F33',
+
+    // Mid cap assets
+    SUI: '#00d1ff',
+    AAVE: '#6600ff',
+    AERO: '#FF0420',
+    WELL: '#00FFFF',
+    HNT: '#474DFF',
+    PRIME: '#FF4500',
+    PEPE: '#00B906'
+  }), []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,23 +167,13 @@ const Strategies = () => {
   return (
     <div className="h-full overflow-y-auto">
       <div className="min-h-full bg-black p-8 max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-2">
-            <h1 className="text-white text-3xl font-bold">Trading Strategy:</h1>
-            <select
-              value={selectedStrategy}
-              onChange={(e) => setSelectedStrategy(e.target.value)}
-              className="bg-[#131722] text-white px-4 py-2 rounded-lg border border-gray-800"
-            >
-              <option value="large_cap">Large Cap Momentum</option>
-              <option value="mid_cap">Mid Cap Momentum</option>
-            </select>
-          </div>
-        </div>
-        
         <div className="flex gap-8">
           <div className="w-64 shrink-0">
-            <BacktestMetrics metrics={summaryData} />
+            <BacktestMetrics 
+              metrics={summaryData} 
+              selectedStrategy={selectedStrategy}
+              onStrategyChange={(value) => setSelectedStrategy(value)}
+            />
           </div>
 
           <div className="flex-1 space-y-8">
