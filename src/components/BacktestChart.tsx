@@ -38,6 +38,7 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
   const [referenceDate, setReferenceDate] = useState<ReferenceDate>(null);
 
   const colors = useMemo(() => ({
+    // Large cap assets
     ETH: '#627EEA',
     SOL: '#00FFA3',
     LINK: '#2A5ADA',
@@ -47,32 +48,54 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
     UNI: '#FF007A',
     FET: '#9B4DCA',
     DOGE: '#BA9F33',
+    // Mid cap assets
+    SUI: '#6916FF',
+    AAVE: '#B6509E',
+    AERO: '#00FF9D',
+    WELL: '#00FFFF',
+    HNT: '#474DFF',
+    PRIME: '#FFB800',
+    PEPE: '#00B906'
   }), []);
 
   const formattedData = useMemo(() => {
-    console.log('Formatting data...');
     if (!data?.length) {
       console.warn('No data provided to BacktestChart');
       return [];
     }
 
     try {
-      const formatted = data.map(item => ({
-        date: item.date,
-        portfolioValue: parseFloat(item.portfolio_value),
-        benchmarkReturn: (1 + parseFloat(item.benchmark_cum_return)) * 100,
-        ...selectedAssets.reduce((acc, asset) => ({
-          ...acc,
-          [`${asset}Return`]: (1 + parseFloat(item[`${asset}_cum_return`])) * 100,
-          [`${asset}Position`]: item[`${asset}_position`] === '1',
-        }), {}),
-      })) as FormattedDataItem[];
+      const formatted = data.map(item => {
+        // Ensure date is properly formatted
+        const date = item.Date;
+        if (!date) {
+          console.warn('Missing date in item:', item);
+          return null;
+        }
 
-      console.log('Formatted data sample:', formatted[0]);
+        // Process asset data
+        const assetData = selectedAssets.reduce((acc, asset) => {
+          const returnKey = `${asset}_cum_return`;
+          const positionKey = `${asset}_position`;
+          
+          return {
+            ...acc,
+            [`${asset}Return`]: (1 + (item[returnKey] || 0)) * 100,
+            [`${asset}Position`]: Boolean(item[positionKey]),
+          };
+        }, {});
+
+        return {
+          date,
+          portfolioValue: item.portfolio_value,
+          benchmarkReturn: (1 + item.benchmark_cum_return) * 100,
+          ...assetData
+        };
+      }).filter(Boolean) as FormattedDataItem[];
+
       return formatted;
     } catch (error) {
       console.error('Error formatting data:', error);
-      console.log('Raw data sample:', data[0]);
       return [];
     }
   }, [data, selectedAssets]);
@@ -81,57 +104,28 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
     const positions: Position[] = [];
     
     if (!data || !selectedAssets) {
-        console.warn('Missing data or selectedAssets:', { data, selectedAssets });
-        return positions;
+      console.warn('Missing data or selectedAssets:', { data, selectedAssets });
+      return positions;
     }
 
-    data.forEach((item, index) => {
-        selectedAssets.forEach(asset => {
-            const positionKey = Object.keys(item).find(key => 
-                key.replace('\r', '').toLowerCase() === `${asset.toLowerCase()}_position`
-            );
-
-            if (!positionKey && index === 0) {
-                console.warn(`No position key found for ${asset}. Available keys:`, 
-                    Object.keys(item).map(k => `"${k}"`)
-                );
-                return;
-            }
-
-            let positionValue = positionKey ? item[positionKey] : null;
-
-            if (asset === 'DOGE' && index < 5) {
-                console.log(`DOGE position check for ${item.date}:`, {
-                    foundKey: positionKey,
-                    rawValue: positionValue,
-                    cleanedKey: positionKey?.replace('\r', '')
-                });
-            }
-
-            const cleanValue = String(positionValue || '').trim();
-            
-            const isPosition = (
-                cleanValue === '1' || 
-                cleanValue === '1.0' || 
-                cleanValue === '1.00' ||
-                parseFloat(cleanValue) === 1
-            );
-
-            if (isPosition) {
-                positions.push({
-                    date: item.date,
-                    asset: asset
-                });
-            }
-        });
+    data.forEach((item) => {
+      selectedAssets.forEach(asset => {
+        // Use the correct case for position key and date
+        const positionKey = `${asset}_position`;
+        
+        // Check for boolean value since we converted it in the data processing
+        if (item[positionKey] === true) {
+          positions.push({
+            date: item.Date, // Use uppercase Date to match the processed data
+            asset: asset
+          });
+        }
+      });
     });
 
-    selectedAssets.forEach(asset => {
-        const assetPositions = positions.filter(p => p.asset === asset);
-        console.log(`${asset} positions:`, {
-            count: assetPositions.length,
-            firstFew: assetPositions.slice(0, 3)
-        });
+    console.log('Generated position data:', {
+      totalPositions: positions.length,
+      samplePositions: positions.slice(0, 3)
     });
     
     return positions;
@@ -493,7 +487,7 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
 
         // Scales
         const x = d3.scaleTime()
-          .domain(d3.extent(data, d => new Date(d.date)) as [Date, Date])
+          .domain(d3.extent(data, d => new Date(d.Date)) as [Date, Date])
           .range([0, width]);
 
         const y = d3.scaleBand()
@@ -543,58 +537,45 @@ const BacktestChart: React.FC<BacktestChartProps> = ({ data, selectedAssets }) =
           .append("circle")
           .attr("class", "position-marker")
           .attr("cx", d => {
-              const xPos = x(new Date(d.date));
-              if (isNaN(xPos)) {
-                  console.error('Invalid x position for:', d);
-                  return 0;
-              }
-              return xPos;
+            const xPos = x(new Date(d.date));
+            if (isNaN(xPos)) {
+              console.error('Invalid x position for:', d);
+              return 0;
+            }
+            return xPos;
           })
           .attr("cy", d => {
-              const yPos = (y(d.asset) || 0) + y.bandwidth() / 2;
-              if (isNaN(yPos)) {
-                  console.error('Invalid y position for:', d);
-                  return 0;
-              }
-              return yPos;
+            const yPos = (y(d.asset) || 0) + y.bandwidth() / 2;
+            if (isNaN(yPos)) {
+              console.error('Invalid y position for:', d);
+              return 0;
+            }
+            return yPos;
           })
           .attr("r", 4)
           .attr("fill", d => {
-              const color = colors[d.asset as keyof typeof colors];
-              if (!color) {
-                  console.error('No color found for asset:', d.asset);
-                  return '#ffffff';
-              }
-              return color;
-          })
-          .on("mouseover", (event, d) => {
-            tooltip.style("opacity", 1)
-              .html(`
-                <div>Asset: ${d.asset}</div>
-                <div>Date: ${d.date}</div>
-                <div>Position: Active</div>
-              `)
-              .style("left", (event.pageX + 10) + "px")
-              .style("top", (event.pageY - 10) + "px");
-          })
-          .on("mouseout", () => {
-            tooltip.style("opacity", 0);
+            const color = colors[d.asset as keyof typeof colors];
+            if (!color) {
+              console.error('No color found for asset:', d.asset);
+              return '#ffffff';
+            }
+            return color;
           });
 
         // Add position counts
         selectedAssets.forEach(asset => {
           try {
-              const count = positionData.filter(d => d.asset === asset).length;
-              
-              svg.append("text")
-                  .attr("x", width + 5)
-                  .attr("y", (y(asset) || 0) + y.bandwidth() / 2)
-                  .attr("dy", "0.35em")
-                  .style("fill", "white")
-                  .style("font-size", "10px")
-                  .text(`(${count})`);
+            const count = positionData.filter(d => d.asset === asset).length;
+            
+            svg.append("text")
+              .attr("x", width + 5)
+              .attr("y", (y(asset) || 0) + y.bandwidth() / 2)
+              .attr("dy", "0.35em")
+              .style("fill", "white")
+              .style("font-size", "10px")
+              .text(`(${count})`);
           } catch (error) {
-              console.error(`Error drawing count for ${asset}:`, error);
+            console.error(`Error drawing count for ${asset}:`, error);
           }
         });
 

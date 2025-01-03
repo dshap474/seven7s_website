@@ -35,19 +35,62 @@ const Strategies = () => {
   const [summaryData, setSummaryData] = useState<any[]>([]);
   const [timeseriesData, setTimeseriesData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStrategy, setSelectedStrategy] = useState('large_cap');
   
-  // Define assets as a constant since we'll always show all of them
-  const assets = ['ETH', 'SOL', 'LINK', 'OP', 'IMX', 'MKR', 'UNI', 'FET', 'DOGE'];
+  // Add this debug log
+  console.log('Strategies component data:', {
+    summaryData,
+    timeseriesData: timeseriesData?.slice(0, 2), // Show first two rows
+    selectedStrategy,
+    loading
+  });
+
+  // Define assets for each strategy
+  const strategyAssets = {
+    large_cap: ['ETH', 'SOL', 'LINK', 'OP', 'IMX', 'MKR', 'UNI', 'FET', 'DOGE'],
+    mid_cap: ['SOL', 'SUI', 'LINK', 'AAVE', 'AERO', 'WELL', 'HNT', 'PRIME', 'PEPE', 'DOGE']
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('Fetching strategy data...');
+        console.log('Fetching strategy data for:', selectedStrategy);
+        
+        // Use the exact file names
+        const summaryFile = selectedStrategy === 'large_cap' 
+          ? 'strategy_equal_weighted_large_cap_momentum_summary.csv'
+          : 'strategy_equal_weighted_mid_cap_momentum_summary.csv';
+        
+        const timeseriesFile = selectedStrategy === 'large_cap'
+          ? 'strategy_equal_weighted_large_cap_momentum_timeseries.csv'
+          : 'strategy_equal_weighted_mid_cap_momentum_timeseries.csv';
+
+        console.log('Fetching files:', { summaryFile, timeseriesFile });
+
         // Fetch summary data
-        const summaryResponse = await fetch('/dashboard_data/multi_asset_momentum_with_20wma_summary.csv');
+        const summaryResponse = await fetch(`/dashboard_data/${summaryFile}`);
+        if (!summaryResponse.ok) {
+          throw new Error(`Failed to fetch summary data: ${summaryResponse.statusText}`);
+        }
         const summaryText = await summaryResponse.text();
+        
+        // Fetch timeseries data
+        const timeseriesResponse = await fetch(`/dashboard_data/${timeseriesFile}`);
+        if (!timeseriesResponse.ok) {
+          throw new Error(`Failed to fetch timeseries data: ${timeseriesResponse.statusText}`);
+        }
+        const timeseriesText = await timeseriesResponse.text();
+
+        // Log the raw data
+        console.log('Raw data received:', {
+          summaryPreview: summaryText.slice(0, 200),
+          timeseriesPreview: timeseriesText.slice(0, 200)
+        });
+
+        // Parse summary data - skip the header row
         const summaryRows = summaryText.split('\n')
           .filter(row => row.trim())
+          .slice(1) // Skip the header row
           .map(row => {
             const [Metric, Value] = row.split(',');
             return { 
@@ -56,23 +99,33 @@ const Strategies = () => {
             };
           });
 
-        // Fetch timeseries data
-        const timeseriesResponse = await fetch('/dashboard_data/multi_asset_momentum_with_20wma_timeseries.csv');
-        const timeseriesText = await timeseriesResponse.text();
+        // Parse timeseries data
         const [headers, ...rows] = timeseriesText.split('\n').filter(row => row.trim());
-        const headerArray = headers.split(',');
+        const headerArray = headers.split(',').map(h => h.trim());
         
         const timeseriesRows = rows.map(row => {
           const values = row.split(',');
-          return headerArray.reduce((obj: any, header, index) => {
-            obj[header] = values[index];
-            return obj;
-          }, {});
+          const obj: any = {};
+          headerArray.forEach((header, index) => {
+            const value = values[index]?.trim();
+            if (header === 'Date') {
+              obj[header] = value;
+            } else if (header.endsWith('_position')) {
+              obj[header] = value === '1' || value === '1.0';
+            } else {
+              obj[header] = parseFloat(value);
+            }
+          });
+          return obj;
         });
 
-        console.log('Fetched summary data:', summaryRows);
-        console.log('Fetched timeseries data sample:', timeseriesRows[0]);
-        
+        console.log('Parsed data:', {
+          summaryRowCount: summaryRows.length,
+          timeseriesRowCount: timeseriesRows.length,
+          firstTimeseriesRow: timeseriesRows[0],
+          headers: headerArray
+        });
+
         setSummaryData(summaryRows);
         setTimeseriesData(timeseriesRows);
       } catch (error) {
@@ -83,13 +136,7 @@ const Strategies = () => {
     };
 
     fetchData();
-  }, []);
-
-  console.log('Strategies rendering with:', {
-    summaryDataLength: summaryData.length,
-    timeseriesDataLength: timeseriesData.length,
-    loading
-  });
+  }, [selectedStrategy]);
 
   if (loading) {
     return <div className="text-white text-center p-8">Loading...</div>;
@@ -98,19 +145,29 @@ const Strategies = () => {
   return (
     <div className="h-full overflow-y-auto">
       <div className="min-h-full bg-black p-8 max-w-7xl mx-auto">
-        <h1 className="text-white text-3xl font-bold mb-8">Trading Strategy Performance</h1>
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-2">
+            <h1 className="text-white text-3xl font-bold">Trading Strategy:</h1>
+            <select
+              value={selectedStrategy}
+              onChange={(e) => setSelectedStrategy(e.target.value)}
+              className="bg-[#131722] text-white px-4 py-2 rounded-lg border border-gray-800"
+            >
+              <option value="large_cap">Large Cap Momentum</option>
+              <option value="mid_cap">Mid Cap Momentum</option>
+            </select>
+          </div>
+        </div>
         
         <div className="flex gap-8">
-          {/* Metrics Column */}
           <div className="w-64 shrink-0">
             <BacktestMetrics metrics={summaryData} />
           </div>
 
-          {/* Charts Column */}
           <div className="flex-1 space-y-8">
             <BacktestChart 
               data={timeseriesData} 
-              selectedAssets={assets}
+              selectedAssets={strategyAssets[selectedStrategy as keyof typeof strategyAssets]}
             />
           </div>
         </div>

@@ -35,12 +35,15 @@ const BacktestMetrics: React.FC<BacktestMetricsProps> = ({ metrics }) => {
     return value;
   };
 
+  // Get strategy name from metrics if available, otherwise use a default
+  const strategyName = metrics.find(m => m.Metric === 'Strategy')?.Value || 'Equal Weighted Strategy';
+
   return (
     <div className="bg-[#131722] rounded-lg border border-gray-800 p-3 space-y-2 h-[800px]">
       {/* Strategy Title Box */}
       <div className="p-2 bg-black/30 rounded-lg">
         <h3 className="text-[#FF6A00] text-xs font-medium mb-0.5">Strategy</h3>
-        <p className="text-white text-sm font-bold">Equal Weighted Large Cap Momentum</p>
+        <p className="text-white text-sm font-bold">{strategyName}</p>
       </div>
       
       {/* Remaining Metrics */}
