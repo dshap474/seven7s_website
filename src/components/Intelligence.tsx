@@ -2,21 +2,25 @@ import React, { useState, useEffect } from 'react';
 
 interface FileData {
   name: string;
-  content: string;
+  content: {
+    class: string;
+    name: string;
+    title: string;
+    text: string;
+  };
   displayName: string | { date: string };
-  category: 'crypto' | 'macro' | 'trading' | 'daily-summaries';
+  category: 'crypto' | 'macro' | 'daily-summaries';
   sentiment?: string;
 }
 
 const CATEGORIES = [
   { id: 'daily-summaries', label: 'Daily Summaries' },
   { id: 'crypto', label: 'Crypto' },
-  { id: 'macro', label: 'Macro' },
-  { id: 'trading', label: 'Trading' }
+  { id: 'macro', label: 'Macro' }
 ] as const;
 
-const extractSentiment = (content: string): string => {
-  // Try different patterns
+const extractSentiment = (content: string | { text: string }): string => {
+  const textContent = typeof content === 'string' ? content : content.text;
   const patterns = [
     /Sentiment:\s*(\w+)/i,
     /Sentiment\n(\w+)/i,
@@ -24,13 +28,12 @@ const extractSentiment = (content: string): string => {
   ];
   
   for (const pattern of patterns) {
-    const match = content.match(pattern);
+    const match = textContent.match(pattern);
     if (match && match[1]) {
       return match[1];
     }
   }
   
-  console.log('No sentiment found in content:', content.slice(-200)); // Log the last 200 chars to debug
   return '';
 };
 
@@ -53,47 +56,33 @@ const formatDisplayName = (fileName: string): string | { date: string } => {
     }
   }
   
-  // Shared handling for crypto, macro, and trading files
-  if (fileName.includes('crypto') || fileName.includes('macro') || fileName.includes('trading')) {
-    const parts = fileName.split('_');
-    if (parts.length >= 4) {
-      const channel = parts[2]; // Get the channel name
-      // Join the remaining parts (except the last '_summary.txt') to form the title
-      const title = parts.slice(3, -1).join(' ').replace(/-/g, ' ');
-      
-      // Capitalize channel name and title words
-      const formattedChannel = channel
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-      
-      const formattedTitle = title
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-      
-      return `${formattedChannel}\n${formattedTitle}`;
-    }
+  // Handle other JSON files
+  const parts = fileName.split('_');
+  if (parts.length >= 3) {
+    // Remove the .json extension and _summary suffix
+    const baseName = fileName.replace('.json', '').replace('_summary', '');
+    const segments = baseName.split('_');
+    
+    // Skip the date part
+    const relevantParts = segments.slice(2);
+    
+    // Format the title
+    return relevantParts
+      .join(' ')
+      .replace(/-/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
   
-  // Fallback handling for any other files
-  const nameWithoutDate = fileName.replace(/^\d{4}-\d{2}-\d{2}_/, '');
-  const nameWithoutExt = nameWithoutDate.replace('_summary.txt', '');
-  
-  const formattedName = nameWithoutExt
-    .replace(/_/g, ' ')
-    .replace(/-/g, ' ');
-
-  return formattedName
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  // Fallback
+  return fileName.replace('.json', '');
 };
 
 const categorizeFile = (fileName: string): FileData['category'] => {
   if (fileName.includes('daily-summary')) return 'daily-summaries';
-  if (fileName.includes('macro')) return 'macro';
-  if (fileName.includes('trading')) return 'trading';
+  if (fileName.includes('macro_')) return 'macro';
+  if (fileName.includes('crypto_')) return 'crypto';
   return 'crypto'; // default category
 };
 
@@ -112,6 +101,13 @@ const extractDate = (fileName: string): string => {
   return '';
 };
 
+const formatContentText = (text: string): string => {
+  return text.replace(
+    /^(Daily Overview|Crypto|Macro|Overarching Themes and Trends|Synopsis|Key Insights)/gm, 
+    '**$1**'
+  );
+};
+
 const ITEMS_PER_PAGE = 25;
 
 const Intelligence: React.FC = () => {
@@ -127,51 +123,33 @@ const Intelligence: React.FC = () => {
       console.log('Starting to fetch files...');
       try {
         const manifestUrl = '/intelligence_data/manifest.json';
+        console.log('Fetching manifest from:', manifestUrl);
+        
         const manifestResponse = await fetch(manifestUrl);
         
         if (!manifestResponse.ok) {
-          const contentType = manifestResponse.headers.get('content-type');
-          console.error('Manifest response status:', manifestResponse.status);
-          console.error('Content-Type:', contentType);
-          
-          const text = await manifestResponse.text();
-          console.error('Response text:', text.substring(0, 200)); // Log first 200 chars
-          
-          throw new Error(`Failed to fetch manifest (${manifestResponse.status}): Invalid response`);
+          throw new Error(`Failed to fetch manifest (${manifestResponse.status})`);
         }
 
-        let fileList: string[];
-        try {
-          fileList = await manifestResponse.json();
-        } catch (jsonError) {
-          console.error('JSON Parse Error:', jsonError);
-          throw new Error('Failed to parse manifest.json - invalid JSON format');
-        }
+        const fileList = await manifestResponse.json();
+        console.log('Parsed manifest data:', fileList);
         
-        if (!Array.isArray(fileList)) {
-          console.error('Unexpected manifest format:', fileList);
-          throw new Error('Manifest data is not an array');
-        }
-
-        if (fileList.length === 0) {
-          console.warn('Manifest is empty');
-          setFiles([]);
-          setLoading(false);
-          return;
+        if (!Array.isArray(fileList) || fileList.length === 0) {
+          throw new Error('Manifest is empty or not an array');
         }
 
         const filePromises = fileList.map(async (fileName) => {
           const fileUrl = `/intelligence_data/${fileName}`;
+          console.log(`Fetching file: ${fileUrl}`);
+          
           try {
             const contentResponse = await fetch(fileUrl);
-            
             if (!contentResponse.ok) {
-              console.error(`Failed to fetch ${fileName}:`, contentResponse.status);
               throw new Error(`Failed to fetch ${fileName}`);
             }
             
-            const content = await contentResponse.text();
-            const sentiment = extractSentiment(content);
+            const content = await contentResponse.json();
+            const sentiment = extractSentiment(content.text);
             
             return {
               name: fileName,
@@ -181,15 +159,14 @@ const Intelligence: React.FC = () => {
               sentiment
             };
           } catch (fileError) {
-            console.error(`Error fetching ${fileName}:`, fileError);
-            // Skip failed files instead of failing completely
+            console.error(`Error processing ${fileName}:`, fileError);
             return null;
           }
         });
 
         const fileData = (await Promise.all(filePromises))
           .filter((file): file is NonNullable<typeof file> => file !== null);
-
+        
         if (fileData.length === 0) {
           throw new Error('No files could be loaded');
         }
@@ -309,7 +286,7 @@ const Intelligence: React.FC = () => {
                 </div>
                 
                 {/* Category Selector */}
-                <div className="grid grid-cols-4 gap-2 p-2 w-full">
+                <div className="grid grid-cols-3 gap-2 p-2 w-full">
                   {CATEGORIES.map(({ id, label }) => (
                     <button
                       key={id}
@@ -362,18 +339,15 @@ const Intelligence: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       {typeof file.displayName === 'string' ? (
-                        // Regular file display
-                        file.displayName.split('\n').map((line, i) => (
-                          <React.Fragment key={i}>
-                            {i > 0 && (
-                              <>
-                                <br />
-                                <span className="text-sm text-gray-400">{line}</span>
-                              </>
-                            )}
-                            {i === 0 && <span className="font-medium">{line}</span>}
-                          </React.Fragment>
-                        ))
+                        // Regular file display with name and title
+                        <div>
+                          <div className="font-medium text-white">
+                            {file.content.name}
+                          </div>
+                          <div className="text-sm text-gray-400 mt-1">
+                            {file.content.title}
+                          </div>
+                        </div>
                       ) : (
                         // Daily summary display - simplified to just show date
                         <div className="text-center">
@@ -409,13 +383,19 @@ const Intelligence: React.FC = () => {
           {selectedFile ? (
             <div className="max-w-4xl mx-auto">
               <h2 className="text-white text-2xl font-bold mb-4">
-                {typeof selectedFile.displayName === 'string' 
-                  ? selectedFile.displayName
-                  : selectedFile.displayName.date}
+                {selectedFile.category === 'daily-summaries' 
+                  ? 'Daily Summaries'
+                  : selectedFile.content.title}
               </h2>
-              <div className="bg-gray-900 rounded-lg p-6 whitespace-pre-wrap text-gray-300 font-mono">
-                {selectedFile.content}
-              </div>
+              <div 
+                className="bg-gray-900 rounded-lg p-6 whitespace-pre-wrap text-gray-300 font-mono [&>strong]:text-white [&>strong]:font-bold"
+                dangerouslySetInnerHTML={{ 
+                  __html: formatContentText(selectedFile.content.text)
+                    .split('\n')
+                    .map(line => line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'))
+                    .join('\n')
+                }}
+              />
             </div>
           ) : (
             <div className="text-gray-500 text-center">
