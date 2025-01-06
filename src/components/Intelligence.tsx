@@ -122,7 +122,7 @@ const Intelligence: React.FC = () => {
     const fetchFiles = async () => {
       console.log('Starting to fetch files...');
       try {
-        const manifestUrl = '/intelligence_data/manifest.json';
+        const manifestUrl = '/intelligence_data/intelligence-manifest.json';
         console.log('Fetching manifest from:', manifestUrl);
         
         const manifestResponse = await fetch(manifestUrl);

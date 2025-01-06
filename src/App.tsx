@@ -3,6 +3,7 @@ import DataChart from './components/DataChart';
 import BacktestMetrics from './components/BacktestMetrics';
 import BacktestChart from './components/BacktestChart';
 import Intelligence from '@/components/Intelligence';
+import AIAgent from './components/AIAgent';
 
 // Updated Objective Function component
 const ObjectiveFunction = () => (
@@ -263,6 +264,7 @@ const tabs = [
   { name: 'Analytics', component: Analytics },
   { name: 'Strategies', component: Strategies },
   { name: 'Intelligence', component: Intelligence },
+  { name: 'AI Agent', component: AIAgent },
   { name: 'Contact', component: Contact },
 ];
 
