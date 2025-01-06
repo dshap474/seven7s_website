@@ -1,24 +1,21 @@
 import fs from 'fs';
 import path from 'path';
 
-const intelligenceDir = path.join(process.cwd(), 'public/intelligence_data');
+const INTELLIGENCE_DIR = path.join(process.cwd(), 'public', 'intelligence_data');
+const MANIFEST_PATH = path.join(INTELLIGENCE_DIR, 'manifest.json');
 
-// Get all .json files from the directory
-const files = fs.readdirSync(intelligenceDir)
+// Get all JSON files in the intelligence directory
+const files = fs.readdirSync(INTELLIGENCE_DIR)
   .filter(file => file.endsWith('.json'))
-  .filter(file => file !== 'manifest.json'); // Exclude manifest.json itself
-
-// Sort files by date (newest first)
-files.sort((a, b) => {
-  const dateA = a.match(/\d{4}-\d{2}-\d{2}/)?.[0] || '';
-  const dateB = b.match(/\d{4}-\d{2}-\d{2}/)?.[0] || '';
-  return dateB.localeCompare(dateA);
-});
+  .filter(file => !['manifest.json', 'ai-manifest.json'].includes(file))
+  // Sort files by date (newest first)
+  .sort((a, b) => {
+    const dateA = a.match(/\d{4}-\d{2}-\d{2}/)?.[0] || '';
+    const dateB = b.match(/\d{4}-\d{2}-\d{2}/)?.[0] || '';
+    return dateB.localeCompare(dateA);
+  });
 
 // Write the manifest file
-fs.writeFileSync(
-  path.join(intelligenceDir, 'manifest.json'),
-  JSON.stringify(files, null, 2)
-);
+fs.writeFileSync(MANIFEST_PATH, JSON.stringify(files, null, 2));
 
-console.log('Generated manifest.json with', files.length, 'files'); 
+console.log(`Generated manifest with ${files.length} files`); 

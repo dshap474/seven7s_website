@@ -122,13 +122,18 @@ const Intelligence: React.FC = () => {
     const fetchFiles = async () => {
       console.log('Starting to fetch files...');
       try {
-        const manifestUrl = '/intelligence_data/intelligence-manifest.json';
+        const manifestUrl = '/intelligence_data/manifest.json';
         console.log('Fetching manifest from:', manifestUrl);
         
         const manifestResponse = await fetch(manifestUrl);
         
         if (!manifestResponse.ok) {
-          throw new Error(`Failed to fetch manifest (${manifestResponse.status})`);
+          throw new Error(`Failed to fetch manifest (${manifestResponse.status}): ${manifestResponse.statusText}`);
+        }
+
+        const contentType = manifestResponse.headers.get('content-type');
+        if (!contentType?.includes('application/json')) {
+          throw new Error(`Invalid content type: ${contentType}. Expected application/json`);
         }
 
         const fileList = await manifestResponse.json();
@@ -145,7 +150,14 @@ const Intelligence: React.FC = () => {
           try {
             const contentResponse = await fetch(fileUrl);
             if (!contentResponse.ok) {
-              throw new Error(`Failed to fetch ${fileName}`);
+              console.error(`Failed to fetch ${fileName}: ${contentResponse.status}`);
+              return null;
+            }
+            
+            const contentType = contentResponse.headers.get('content-type');
+            if (!contentType?.includes('application/json')) {
+              console.error(`Invalid content type for ${fileName}: ${contentType}`);
+              return null;
             }
             
             const content = await contentResponse.json();
