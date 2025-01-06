@@ -1,13 +1,6 @@
 [build]
-  command = "npm ci --omit=optional && npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
-
-# Add build settings to ensure proper file permissions
-[build.environment]
-  NODE_VERSION = "18.17.0"
-  NPM_FLAGS = "--no-optional --legacy-peer-deps --platform=linux --arch=x64"
-  ROLLUP_SKIP_PLATFORM_CHECK = "true"
-  VITE_CJS_IGNORE_WARNING = "true"
 
 [[headers]]
   for = "/*.json"

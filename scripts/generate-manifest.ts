@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const INTELLIGENCE_DIR = path.join(process.cwd(), 'public', 'intelligence_data');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const INTELLIGENCE_DIR = path.join(__dirname, '..', 'public', 'intelligence_data');
 const MANIFEST_PATH = path.join(INTELLIGENCE_DIR, 'manifest.json');
 
 // Get all JSON files in the intelligence directory
