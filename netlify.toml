@@ -15,14 +15,6 @@
 [build.processing.images]
   compress = true
 
-# Add build plugin to run manifest generation
-[[plugins]]
-  package = "netlify-plugin-run-build-plugins"
-
-  [plugins.inputs]
-    location = "scripts/generate-manifest.ts"
-    build_command = "npm run generate-manifests"
-
 [[headers]]
   for = "/intelligence_data/*"
   [headers.values]
