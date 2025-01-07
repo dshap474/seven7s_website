@@ -181,11 +181,30 @@ const Intelligence: React.FC = () => {
         setFiles(fileData);
         setLoading(false);
         
-        // Set first file of selected category as default
-        const categoryFiles = fileData.filter(f => f.category === selectedCategory);
+        // Sort files by date before selecting the initial file
+        const categoryFiles = fileData
+          .filter(f => f.category === selectedCategory)
+          .sort((a, b) => {
+            const getDate = (fileName: string) => {
+              const dateMatch = fileName.match(/(\d{4})-(\d{2})-(\d{2})/);
+              if (dateMatch) {
+                const [_, year, month, day] = dateMatch;
+                return new Date(Number(year), Number(month) - 1, Number(day));
+              }
+              return new Date(0);
+            };
+
+            const dateA = getDate(a.name);
+            const dateB = getDate(b.name);
+            
+            return dateB.getTime() - dateA.getTime();
+          });
+
+        // Set the most recent file as default
         if (categoryFiles.length > 0) {
           setSelectedFile(categoryFiles[0]);
         }
+
       } catch (error) {
         console.error('Error in fetchFiles:', error);
         setError(error instanceof Error ? error.message : 'Unknown error occurred');
