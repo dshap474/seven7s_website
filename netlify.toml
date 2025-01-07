@@ -1,12 +1,43 @@
 [build]
-  command = "npm ci && npm run build"
+  command = "npm run build"
   publish = "dist"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Ensure the intelligence_data directory is included
+[build.processing]
+  skip_processing = false
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# Add build plugin to run manifest generation
+[[plugins]]
+  package = "netlify-plugin-run-build-plugins"
+
+  [plugins.inputs]
+    location = "scripts/generate-manifest.ts"
+    build_command = "npm run generate-manifests"
+
+[[headers]]
+  for = "/intelligence_data/*"
+  [headers.values]
+    Content-Type = "application/json"
 
 [[headers]]
   for = "/*.json"
   [headers.values]
     Content-Type = "application/json"
 
+# Ensure intelligence_data files are processed correctly
+[build.processing.files]
+  # Include JSON files in processing
+  include = ["*.json"]
+  
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -122,7 +122,7 @@ const Intelligence: React.FC = () => {
     const fetchFiles = async () => {
       console.log('Starting to fetch files...');
       try {
-        const manifestUrl = '/intelligence_data/manifest.json';
+        const manifestUrl = '/intelligence_data/intelligence-manifest.json';
         console.log('Fetching manifest from:', manifestUrl);
         
         const manifestResponse = await fetch(manifestUrl);
@@ -132,15 +132,13 @@ const Intelligence: React.FC = () => {
         }
 
         const contentType = manifestResponse.headers.get('content-type');
-        if (!contentType?.includes('application/json')) {
-          throw new Error(`Invalid content type: ${contentType}. Expected application/json`);
-        }
+        console.log('Manifest content type:', contentType);
 
         const fileList = await manifestResponse.json();
         console.log('Parsed manifest data:', fileList);
         
-        if (!Array.isArray(fileList) || fileList.length === 0) {
-          throw new Error('Manifest is empty or not an array');
+        if (!Array.isArray(fileList)) {
+          throw new Error('Invalid manifest format: expected an array');
         }
 
         const filePromises = fileList.map(async (fileName) => {
@@ -155,10 +153,7 @@ const Intelligence: React.FC = () => {
             }
             
             const contentType = contentResponse.headers.get('content-type');
-            if (!contentType?.includes('application/json')) {
-              console.error(`Invalid content type for ${fileName}: ${contentType}`);
-              return null;
-            }
+            console.log(`Content type for ${fileName}:`, contentType);
             
             const content = await contentResponse.json();
             const sentiment = extractSentiment(content.text);
@@ -184,6 +179,7 @@ const Intelligence: React.FC = () => {
         }
 
         setFiles(fileData);
+        setLoading(false);
         
         // Set first file of selected category as default
         const categoryFiles = fileData.filter(f => f.category === selectedCategory);
@@ -193,7 +189,6 @@ const Intelligence: React.FC = () => {
       } catch (error) {
         console.error('Error in fetchFiles:', error);
         setError(error instanceof Error ? error.message : 'Unknown error occurred');
-      } finally {
         setLoading(false);
       }
     };

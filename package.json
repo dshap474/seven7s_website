@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "npm run generate-manifest && vite",
-    "build": "npm run generate-manifest && tsc && vite build",
+    "build": "npm run verify-json && npm run generate-manifests && vite build",
     "serve": "vite preview",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "generate-manifest": "tsx scripts/generate-manifest.ts"
+    "generate-manifest": "tsx scripts/generate-manifest.ts",
+    "generate-manifests": "tsx scripts/generate-manifest.ts",
+    "verify-json": "tsx scripts/verify-json.ts"
   },
   "dependencies": {
     "@types/node": "^20.10.0",
