@@ -49,7 +49,7 @@ const Strategies = () => {
   // Define assets for each strategy
   const strategyAssets = {
     large_cap: ['ETH', 'SOL', 'LINK', 'OP', 'IMX', 'MKR', 'UNI', 'FET', 'DOGE'],
-    mid_cap: ['SOL', 'SUI', 'LINK', 'AAVE', 'AERO', 'WELL', 'HNT', 'PRIME', 'PEPE', 'DOGE']
+    mid_cap: ['SOL', 'SUI', 'LINK', 'AAVE', 'AERO', 'HNT', 'PRIME', 'PEPE', 'DOGE']
   };
 
   useEffect(() => {
