@@ -220,7 +220,25 @@ const Intelligence: React.FC = () => {
     );
   }
 
-  const filteredFiles = files.filter(f => f.category === selectedCategory);
+  const filteredFiles = files
+    .filter(f => f.category === selectedCategory)
+    .sort((a, b) => {
+      // Extract dates from filenames
+      const getDate = (fileName: string) => {
+        const dateMatch = fileName.match(/(\d{4})-(\d{2})-(\d{2})/);
+        if (dateMatch) {
+          const [_, year, month, day] = dateMatch;
+          return new Date(Number(year), Number(month) - 1, Number(day));
+        }
+        return new Date(0); // fallback for files without dates
+      };
+
+      const dateA = getDate(a.name);
+      const dateB = getDate(b.name);
+      
+      // Sort in descending order (newest first)
+      return dateB.getTime() - dateA.getTime();
+    });
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredFiles.length / ITEMS_PER_PAGE);
