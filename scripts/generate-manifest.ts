@@ -27,17 +27,26 @@ async function generateManifests() {
     const aiFiles = files.filter(file => file.includes('meta-summary'));
     const intelligenceFiles = files.filter(file => !file.includes('meta-summary'));
 
+    // Sort files by date (newest first)
+    const sortFiles = (files: string[]) => {
+      return files.sort((a, b) => {
+        const dateA = a.match(/\d{4}-\d{2}-\d{2}/)?.[0] || '';
+        const dateB = b.match(/\d{4}-\d{2}-\d{2}/)?.[0] || '';
+        return dateB.localeCompare(dateA);
+      });
+    };
+
     // Write intelligence-manifest.json
     fs.writeFileSync(
       path.join(INTELLIGENCE_DIR, 'intelligence-manifest.json'),
-      JSON.stringify(intelligenceFiles, null, 2)
+      JSON.stringify(sortFiles(intelligenceFiles), null, 2)
     );
 
     // Write ai-manifest.json
     fs.writeFileSync(
       path.join(INTELLIGENCE_DIR, 'ai-manifest.json'),
       JSON.stringify({
-        files: aiFiles,
+        files: sortFiles(aiFiles),
         lastUpdated: new Date().toISOString()
       }, null, 2)
     );
