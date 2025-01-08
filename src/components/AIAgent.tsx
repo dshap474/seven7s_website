@@ -56,42 +56,92 @@ const formatFileName = (filename: string, sentiment?: string): JSX.Element => {
 const AIAgent = () => {
   const [summaries, setSummaries] = useState<{ [key: string]: MetaSummary }>({});
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSummaries = async () => {
+    const fetchFiles = async () => {
+      console.log('Starting to fetch AI files...');
       try {
-        const manifestResponse = await fetch('/intelligence_data/ai-manifest.json');
-        if (!manifestResponse.ok) {
-          throw new Error('Failed to fetch manifest');
-        }
-        const manifest: Manifest = await manifestResponse.json();
+        const manifestUrl = '/intelligence_data/ai-manifest.json';
+        console.log('Fetching AI manifest from:', manifestUrl);
         
+        const manifestResponse = await fetch(manifestUrl);
+        
+        if (!manifestResponse.ok) {
+          throw new Error(`Failed to fetch AI manifest (${manifestResponse.status}): ${manifestResponse.statusText}`);
+        }
+
+        const contentType = manifestResponse.headers.get('content-type');
+        console.log('AI Manifest content type:', contentType);
+
+        const manifest: Manifest = await manifestResponse.json();
+        console.log('Parsed AI manifest data:', manifest);
+
+        if (!Array.isArray(manifest.files)) {
+          throw new Error('Invalid AI manifest format: files property should be an array');
+        }
+
         const summariesData: { [key: string]: MetaSummary } = {};
         
-        // Fetch each summary file listed in the manifest
-        for (const file of manifest.files) {
-          const summaryResponse = await fetch(`/intelligence_data/${file}`);
-          if (summaryResponse.ok) {
-            const data = await summaryResponse.json();
-            summariesData[file] = data;
+        for (const fileName of manifest.files) {
+          const fileUrl = `/intelligence_data/${fileName}`;
+          console.log(`Fetching AI file: ${fileUrl}`);
+          
+          try {
+            const contentResponse = await fetch(fileUrl);
+            if (!contentResponse.ok) {
+              console.error(`Failed to fetch ${fileName}: ${contentResponse.status}`);
+              continue;
+            }
+            
+            const contentType = contentResponse.headers.get('content-type');
+            console.log(`Content type for ${fileName}:`, contentType);
+            
+            const content = await contentResponse.json();
+            summariesData[fileName] = content;
+          } catch (fileError) {
+            console.error(`Error processing ${fileName}:`, fileError);
           }
         }
 
+        if (Object.keys(summariesData).length === 0) {
+          throw new Error('No AI files could be loaded');
+        }
+
         setSummaries(summariesData);
-        // Set most recent file as default
+        setLoading(false);
+
+        // Set the most recent file as default
         const sortedFiles = Object.keys(summariesData).sort().reverse();
         if (sortedFiles.length > 0) {
           setSelectedFile(sortedFiles[0]);
         }
+
       } catch (error) {
-        console.error('Error fetching summaries:', error);
+        console.error('Error in fetchFiles:', error);
+        setError(error instanceof Error ? error.message : 'Unknown error occurred');
+        setLoading(false);
       }
     };
 
-    fetchSummaries();
+    fetchFiles();
   }, []);
 
   const selectedSummary = selectedFile ? summaries[selectedFile] : null;
+
+  if (loading) {
+    return <div className="text-white text-center p-8">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-8">
+        <h2 className="text-xl font-bold mb-2">Error Loading Files</h2>
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full overflow-y-auto">
@@ -103,7 +153,7 @@ const AIAgent = () => {
             <div className="border-t border-gray-700">
               <div className="p-4 space-y-2">
                 {Object.keys(summaries)
-                  .sort((a, b) => b.localeCompare(a)) // Sort in reverse chronological order
+                  .sort((a, b) => b.localeCompare(a))
                   .map((filename) => (
                     <button
                       key={filename}
@@ -123,7 +173,7 @@ const AIAgent = () => {
 
           {/* Right content area */}
           <div className="flex-1 space-y-4">
-            {selectedSummary && (
+            {selectedSummary ? (
               <>
                 {/* Analysis box - full width */}
                 <div className="bg-gray-900 rounded-lg p-6">
@@ -256,6 +306,8 @@ const AIAgent = () => {
                   </div>
                 </div>
               </>
+            ) : (
+              <div className="text-white text-center p-8">No file selected</div>
             )}
           </div>
         </div>
