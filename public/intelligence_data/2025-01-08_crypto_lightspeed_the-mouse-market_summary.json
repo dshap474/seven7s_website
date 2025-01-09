@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Lightspeed",
+  "title": "The Mouse Market",
+  "text": "Synopsis\nPump.science is pioneering a novel decentralized science (DeSci) funding model using crypto mechanisms, combining prediction markets and livestreamed scientific experiments on mice to incentivize longevity research.\n\nKey Insights\n- Pump.science partners with Hedgehog Markets to create prediction markets around mice longevity experiments\n- Users can bet on experimental outcomes using data about longevity compounds and mouse performance\n- The project uses a memecoin funding mechanism where token market cap determines experiment scale\n- Experiments are livestreamed, allowing direct investor observation of scientific trials\n- The project has drawn criticism from some crypto experts, with Tarun Chitra calling earlier iterations \"naive\" or potentially predatory\n- Solana Foundation implemented SIMD-0215, a network improvement proposal using Accounts Lattice Hash to potentially scale the network to billions of user accounts\n- The Solana improvement aims to address state bloat and improve network efficiency for complex applications"
+}
