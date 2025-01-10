@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Messari",
+  "title": "DIMO's Rob Solomon on blockers in connected mobility on Fully Diluted with Messari Research",
+  "text": "Synopsis\nDIMO is developing a blockchain-based connected mobility platform with current technological and geographical constraints that are actively being addressed to expand global vehicle data collection and node infrastructure.\n\nKey Insights\n- DIMO's vehicle NFTs and payments are fully on-chain, while vehicle data (location, fuel levels) is currently stored off-chain\n- The company is currently the only US node operator, facing geographical constraints in data storage (e.g., cannot store data for Chinese citizens)\n- Current technological limitations include:\n  - Inability to decode data for all vehicle types globally\n  - Primary capability currently focused on western vehicles using standard OBD signals\n  - Can reverse-engineer vehicle information from VIN numbers for most western vehicles\n- The company is actively working to:\n  - Enable multiple global nodes\n  - Expand node infrastructure\n  - Develop capabilities to decode data for vehicles worldwide\n- The platform allows for on-chain vehicle NFTs with configurable permission settings"
+}
