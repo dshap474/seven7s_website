@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Alea Research",
+  "title": "Ora Infrastructure For The Agentic Economy",
+  "text": "Synopsis\nORA is developing comprehensive infrastructure for AI agents in the crypto ecosystem, creating a platform that enables users to launch, own, and interact with AI agents across multiple blockchain networks.\n\nKey Insights\n- ORA raised $20M in Series A funding from Polychain, SevenX ventures, and Dao5\n- The project offers verifiable AI inference through its AI Oracle, allowing protocols to integrate compute-reliant functions\n- Introduced Initial Model Offerings (IMOs) to enable creators to mint and monetize AI models\n- Deployed across multiple blockchain networks including Base, Arbitrum, Optimism, Hyperliquid, and Solana\n- Launched Pump.ai, a platform allowing users to create AI agents for as little as 1 $ORA token\n- Developed opAgent framework using Optimistic Machine Learning (opML), enabling perpetual AI agents with autonomous transaction capabilities\n- Currently has over 20 projects building on its platform with 180K AI inference calls across 500 nodes\n- $ORA token serves as the primary currency for the platform, used for IMOs, node operations, governance, and AI agent launches"
+}
