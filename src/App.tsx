@@ -1,3 +1,9 @@
+/**
+ * App.tsx
+ * ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+ * Main application component that handles routing and layout for the seven7s platform
+ */
+
 import React, { useState, useEffect } from 'react';
 import DataChart from './components/DataChart';
 import BacktestMetrics from './components/BacktestMetrics';
