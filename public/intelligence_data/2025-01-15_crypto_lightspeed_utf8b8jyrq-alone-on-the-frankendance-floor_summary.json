@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Lightspeed",
+  "title": "Utf8b8jyrq Alone On The Frankendance Floor",
+  "text": "Synopsis\nSolana's ecosystem is experiencing technological evolution with Frankendancer, a new validator client, facing slow adoption due to MEV (Maximal Extractable Value) challenges, while simultaneously seeing innovative developer tools emerging.\n\nKey Insights\n- Only 12 validators (controlling 5.4 million staked SOL) are currently running Frankendancer, out of 392 million total staked SOL\n- MEV represents approximately 25% of validator staking rewards, making efficient MEV capture critical for validators\n- Over 93% of Solana validators currently use Jito-Solana client, which offers better MEV processing\n- Anza (Solana developer shop) plans to push for Frankendancer supermajority on testnet in the coming week\n- A new CLI tool called \"mucho\" has been developed to simplify Solana development, potentially lowering entry barriers for developers\n- Jito restaking protocol added $80 million in total value locked during a 24-hour open deposit period"
+}
