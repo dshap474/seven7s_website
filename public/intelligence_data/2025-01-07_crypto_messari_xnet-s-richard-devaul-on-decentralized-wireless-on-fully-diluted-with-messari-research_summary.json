@@ -1,6 +1,0 @@
-{
-  "class": "crypto",
-  "name": "Messari",
-  "title": "XNet's Richard DeVaul on decentralized wireless on Fully Diluted with Messari Research",
-  "text": "Synopsis\nHelium Mobile operates as an MVNO (Mobile Virtual Network Operator) using T-Mobile's network, with a unique approach of leveraging its own radios to reduce operational costs, but facing typical challenges of the mobile service provider market.\n\nKey Insights\n- Helium Mobile has over 200,000 subscribers\n- The business model involves selling mobile plans directly to individual users\n- Phones preferentially connect to Helium's own radios where available, reducing network costs\n- The mobile service market is challenging, with typical characteristics including:\n  - Approximately 20% customer churn per year\n  - Thin profit margins\n- Positioned similarly to other MVNOs like Boost Mobile and Mint Mobile\n- Operates in partnership with T-Mobile to provide network services"
-}
