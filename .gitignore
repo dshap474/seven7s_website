@@ -37,6 +37,10 @@ public/intelligence_data/manifest.json
 /public/intelligence_data/*
 !/public/intelligence_data/.gitkeep
 
+# Dashboard data
+/public/dashboard_data/*
+!/public/dashboard_data/.gitkeep
+
 # Platform specific packages
 **/node_modules/**/*-win32-*
 **/node_modules/**/*-darwin-*

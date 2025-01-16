@@ -5,12 +5,12 @@ import BacktestChart from './components/BacktestChart';
 import Intelligence from '@/components/Intelligence';
 import AIAgent from './components/AIAgent';
 
-// Updated Objective Function component
-const ObjectiveFunction = () => (
+// Updated About component (formerly ObjectiveFunction)
+const About = () => (
   <div className="absolute inset-0 flex items-center justify-center">
     <div className="text-center">
       <p className="max-w-2xl text-white">
-        seven7s is an open-source AI investment collective with the objective function of achieving financial escape velocity
+        seven7s is an investor collective with the objective function of achieving financial escape velocity
       </p>
     </div>
   </div>
@@ -260,7 +260,7 @@ const Analytics: React.FC = () => {
 
 const tabs = [
   { name: 'Launch', component: LaunchPage },
-  { name: 'Objective Function', component: ObjectiveFunction },
+  { name: 'About', component: About },
   { name: 'Analytics', component: Analytics },
   { name: 'Strategies', component: Strategies },
   { name: 'Intelligence', component: Intelligence },
