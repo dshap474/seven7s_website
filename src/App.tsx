@@ -10,7 +10,7 @@ const ObjectiveFunction = () => (
   <div className="absolute inset-0 flex items-center justify-center">
     <div className="text-center">
       <p className="max-w-2xl text-white">
-        seven7s is an investment collective with the objective function of achieving financial escape velocity
+        seven7s is an investor collective with the objective function of achieving financial escape velocity
       </p>
     </div>
   </div>
