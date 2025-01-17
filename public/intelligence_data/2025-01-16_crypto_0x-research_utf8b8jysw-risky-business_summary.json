@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "0xResearch",
+  "title": "Utf8b8jysw Risky Business",
+  "text": "Synopsis\nBitcoin-backed derivatives are experiencing rapid growth but face significant transparency and liquidity risks, with platforms like SolvBTC introducing complex trust layers that could potentially undermine user confidence.\n\nKey Insights\n- Bitcoin-backed derivatives like SolvBTC and LBTC are expanding, offering new DeFi opportunities with staking rewards\n- Concerns exist about transparency, unbacked reserves, and potential double-counting of total value locked (TVL)\n- SolvBTC allows bitcoin deposits with 1:1 token mirroring, but tokens can be moved across chains, making tracking difficult\n- Solv Protocol's native token (SOLV) is set to list on Binance with a total supply of 9.66 billion tokens\n- Other bitcoin derivative issuers like Lombard and Bedrock are using points programs to attract deposits\n- Ethereum validators are signaling support for increasing block gas limit from 30 million to 36 million, which could increase daily transaction load by 20%\n- Potential trade-offs include increased hardware burden on validators and network decentralization concerns"
+}

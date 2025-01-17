@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Lightspeed",
+  "title": "Utf8b8joia Solflation",
+  "text": "Synopsis\nMulticoin Capital proposes a dynamic inflation mechanism for Solana that could reduce SOL token dilution while potentially impacting staking yields and network economics.\n\nKey Insights\n- Multicoin Capital has proposed changing Solana's fixed inflation schedule to a market-based solution\n- The proposed mechanism would target a 50% staking rate, dynamically adjusting SOL issuance:\n  - If staking exceeds 50%: Issuance would decrease to discourage staking\n  - If staking is below 50%: Issuance would increase to encourage staking\n- Current SOL inflation is around 4.8%, originally set at 8% and planned to decrease by 15% annually until reaching 1.5%\n- Potential benefits of the proposal include:\n  - Reducing network centralization\n  - Increasing DeFi utility of SOL\n  - Potentially reducing sell pressure from staking rewards\n- Only 9% of staked SOL is currently liquid, indicating room for growth in liquid staking\n- The proposal could lower staking yields, which have historically been above 7%\n- Rebecca Rettig, former Polygon Labs chief legal officer, is joining Jito Labs as chief legal officer, signaling potential regulatory and strategic developments in the Solana ecosystem"
+}
