@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Unchained",
+  "title": "Here’s How to Protect Your Crypto and Seed Phrases From Natural Disasters",
+  "text": "Synopsis\nThe crypto industry needs to move beyond traditional seed phrase storage methods and adopt more secure, resilient self-custody technologies like Multi-Party Computation (MPC) and Account Abstraction (AA) wallets to protect users' assets from potential loss during natural disasters.\n\nKey Insights\n- Approximately $250 trillion worth of Bitcoin has been lost or stolen in the last 10 years due to seed phrase mismanagement\n- Current seed phrase storage methods are vulnerable to complete loss during natural disasters like fires\n- Emerging technologies like MPC wallets break private keys into multiple locations, eliminating single points of failure\n- Account Abstraction (AA) wallets offer alternative secure self-custody solutions\n- The crypto ecosystem needs to prioritize developing more user-friendly and disaster-resistant asset protection methods\n- Current self-custody approaches are too complex for average users to implement effectively\n- Existing solutions like separating seed phrases across different geographies are impractical for most people\n- The industry should focus on building more accessible and secure asset management technologies"
+}
