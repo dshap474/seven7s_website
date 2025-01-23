@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "0xResearch",
+  "title": "Utf8b4pqx77ip Proving Ground",
+  "text": "Synopsis\nEthereum is exploring \"native rollups\", a new blockchain design that could fundamentally improve rollup security, reduce governance complexity, and potentially enhance ETH's value proposition by leveraging Layer 1 validators more efficiently.\n\nKey Insights\n- Ethereum researcher Justin Drake proposed \"native rollups\", a novel rollup design that relies on Ethereum L1 validators for transaction proving and validation\n- Key advantages of native rollups include:\n  - Elimination of expensive prover networks\n  - Removal of complex governance structures\n  - Inherent security from Ethereum L1\n  - Potential for synchronous cross-chain composability\n- The design introduces an \"execute\" precompile function in the Ethereum Virtual Machine (EVM) to verify state transitions\n- Native rollups could potentially improve ETH value accrual by making ETH necessary for transaction settlement\n- Separately, EigenLayer launched Rewards v2, offering more efficient reward claiming for users\n- Solana is considering a dynamic inflation mechanism (SIMD 228) that could reduce SOL's annual inflation rate and potentially impact DeFi activity"
+}
