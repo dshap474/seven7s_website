@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "0xResearch",
+  "title": "Utf8b4pqh Thorchain Is Insolvent",
+  "text": "Synopsis\nTHORChain is facing potential insolvency due to a critical design flaw in its lending and savings products that creates unsustainable selling pressure on its native RUNE token.\n\nKey Insights\n- THORChain has halted withdrawals from its Lending and Savers products\n- The protocol is sitting on approximately $200 million of BTC and ETH-denominated liabilities it cannot afford to pay out\n- THORChain's unique mechanism sells collateral for RUNE tokens, which are then burned and minted, creating a problematic tokenomic structure\n- When RUNE's price falls relative to BTC and ETH, more RUNE must be minted to repay loans, causing inflationary pressure\n- The RUNE token has dropped 44% in a week, exacerbating the protocol's insolvency risk\n- THORChain's original swap functionality remains operational, with $50-60 billion in weekly trading volumes\n- The core issue is that the protocol's design inherently creates a leveraged short position against BTC and ETH"
+}
