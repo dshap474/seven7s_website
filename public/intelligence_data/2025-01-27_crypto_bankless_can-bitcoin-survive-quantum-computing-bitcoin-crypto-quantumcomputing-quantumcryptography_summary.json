@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Bankless",
+  "title": "Can Bitcoin Survive Quantum Computing? #bitcoin #crypto #quantumcomputing #quantumcryptography",
+  "text": "Synopsis\nQuantum computing could potentially disrupt Bitcoin's proof-of-work mechanism by enabling more efficient mining, but the network could automatically adjust difficulty to maintain equilibrium.\n\nKey Insights\n- Quantum computers using Grover's algorithm could provide significant mining advantages to entities with access to scalable quantum computing technology\n- If quantum computers become widely available, Bitcoin's proof-of-work system would automatically increase mining difficulty to compensate\n- The network could potentially maintain its current security model by making pre-image requirements more stringent in response to quantum computing capabilities\n- The adaptation mechanism suggests Bitcoin's underlying protocol has built-in resilience against potential technological disruptions"
+}

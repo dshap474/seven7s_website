@@ -1,0 +1,6 @@
+{
+  "class": "macro",
+  "name": "42 Macro",
+  "title": "Does DeepSeek Represent An End to US Exceptionalism?",
+  "text": "Synopsis\nDeepSeek's AI model breakthrough challenges US technological dominance, demonstrating the potential for efficient AI development with limited resources and despite semiconductor export restrictions.\n\nKey Insights\n- DeepSeek, a Chinese AI startup, developed an AI model that outperformed major US AI models (Meta Llama 3.1, OpenAI ChatGPT 4, Anthropic Claude Sonet 3.5) in accuracy tests\n- The model was developed in only two months for $6 million, significantly less than the hundreds of billions spent by US hyperscalers\n- DeepSeek successfully trained its model using cheaper H800 chips after being cut off from advanced Nvidia H100 chips due to US export restrictions\n- The NASDAQ 100 was down 3% in response to these developments\n- Investors are advised to rely on risk management systems rather than intuition when assessing the potential market impact of such technological advancements"
+}
