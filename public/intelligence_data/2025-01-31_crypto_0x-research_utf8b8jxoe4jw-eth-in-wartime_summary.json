@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "0xResearch",
+  "title": "Utf8b8jxoe4jw ETH In Wartime",
+  "text": "Synopsis\nEthereum is undergoing a strategic realignment focused on improving ecosystem coordination, interoperability, and scalability through standardized sequencing and cross-rollup communication mechanisms.\n\nKey Insights\n- Ethereum developers are working to solve fragmentation in the rollup ecosystem by creating shared sequencing architectures that maintain individual rollup autonomy\n- The L2 Interop Working Group is developing ERC-7786, a standardized cross-chain messaging API to enable seamless cross-rollup transactions\n- Target is to achieve sub-three-slot finality for cross-rollup transactions, potentially reducing settlement time to as little as six seconds\n- Ethereum core developers are adopting a more disciplined approach to feature development, focusing on fully implemented and tested proposals\n- Pectra fork is scheduled for testnet deployment in February, with mainnet upgrades targeted for mid-March\n- The development approach prioritizes building a coherent, durable system rather than rushing to scale\n- Jito protocol on Solana launched a new MEV distribution network, redistributing 0.3% of MEV tips to restakers and stakers, potentially generating additional yield of 2.86% on top of existing 10% staking APY"
+}
