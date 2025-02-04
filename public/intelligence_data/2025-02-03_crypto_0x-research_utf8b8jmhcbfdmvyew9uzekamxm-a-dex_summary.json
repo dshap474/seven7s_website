@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "0xResearch",
+  "title": "Utf8b8jmhcbfdmvyew9uzekamxm A Dex",
+  "text": "Synopsis\nUniswap v4's innovative \"hooks\" feature is set to transform decentralized exchanges (DEXs) by enabling highly customizable liquidity pool logic, potentially commoditizing the DEX market and creating unprecedented flexibility for developers.\n\nKey Insights\n- Crypto markets experienced significant liquidations (over $2.3 billion) over the weekend, triggered by concerns about Trump's potential tariffs\n- Bitcoin saw $376 million in liquidations but maintained support around the $92,000 level\n- The total crypto market cap (excluding BTC and stablecoins) crashed approximately 30% over the weekend\n- Uniswap v4 introduces \"hooks\" - smart contract attachments that allow developers to create custom DEX logic, including:\n  - Dynamic fee structures\n  - Yield generation for liquidity providers\n  - KYC and time-based trading restrictions\n  - Custom fee mechanisms\n- Flaunch, a memecoin launchpad, has already utilized v4 hooks to create innovative token launch mechanisms\n- 24 active projects are currently building on Uniswap v4 hooks\n- Balancer and CoW Protocol are considering a strategic token swap to deepen their partnership and advance CoWAMM development"
+}
