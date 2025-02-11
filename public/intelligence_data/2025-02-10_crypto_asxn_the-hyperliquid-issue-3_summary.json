@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Asxn",
+  "title": "The Hyperliquid Issue 3",
+  "text": "Synopsis\nHyperliquid continues to demonstrate strong growth in derivatives trading, maintaining a dominant 71% market share of derivative DEX volumes while expanding its ecosystem with multiple innovative projects.\n\nKey Insights\n- Hyperliquid processed $479B in trading volume over the past 3 months, with an average daily volume of $5.3B, representing a 51% increase\n- The platform currently represents 71% of total derivatives DEX volumes as of February 1st\n- Daily unique traders average 24.2K per day, a 33.5% increase from previous periods\n- Platform generates approximately $679.07M in annualized revenue\n- Currently has 16 validators with 42.69% of HYPE token supply staked\n- Developing HyperEVM with a unique dual-block architecture to optimize transaction speed and complexity\n- Emerging ecosystem projects include:\n  * Felix: Partnering with Anthias Labs for risk management\n  * HyperLend: Undergoing security audits and expanding risk management\n  * LoopedHYPE: Automated yield vault offering ~10% APY\n  * HyperSwap: Liquidity hub with concentrated and traditional liquidity pools\n  * Silhouette: Decentralized trading platform focusing on private trading capabilities"
+}
