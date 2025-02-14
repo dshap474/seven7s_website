@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Messari",
+  "title": "Markus Levin on XYO's Proof-of-Origin Technology on Fully Diluted with Messari Research",
+  "text": "Synopsis\nXYO has developed a proof-of-origin technology that enables verifiable data collection and tracking across multiple stages, leveraging blockchain and IoT technologies to validate the source and transmission of data points.\n\nKey Insights\n- XYO's technology allows for proof-of-location and data collection through various IoT sensors\n- The platform can collect diverse data types, including:\n  - Temperature sensor readings\n  - On-demand data like store opening hours\n  - Real-time environmental information\n- Proof-of-origin technology tracks data points through multiple stages:\n  - Initial generation at sensor level\n  - Handover to IPFS database\n  - Transfer to smart contract\n- Data is \"tangled\" at each handover point to ensure verifiable origin and endpoint tracking\n- The technology provides a method to validate and verify the source and transmission path of data"
+}
