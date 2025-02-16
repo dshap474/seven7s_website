@@ -1,12 +1,12 @@
 Metric,Value
 Initial Capital,100
-Final Portfolio Value,915.2086168674647
-Total Return,8.152086168674646
-Annualized Return,2.0319067199687852
-Sharpe Ratio,2.1229067414487908
+Final Portfolio Value,915.9184205988221
+Total Return,8.15918420598822
+Annualized Return,2.0264144141191602
+Sharpe Ratio,2.1214132480636856
 Max Drawdown,-0.46326948029942294
 Total Trades,964
 Start Date,2023-10-01 00:00:00
-End Date,2025-02-15 00:00:00
+End Date,2025-02-16 00:00:00
 Average Position Change,0.1770006078838174
-Benchmark Return,2.3136232339345675
+Benchmark Return,2.3194451810841796
