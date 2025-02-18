@@ -1,0 +1,6 @@
+{
+  "class": "crypto",
+  "name": "Alea Research",
+  "title": "Infinifi Onchain Fractional Reserve Banking What You Need To Know",
+  "text": "Synopsis\nInfiniFi is pioneering an onchain fractional reserve banking system that aims to provide higher yields and more transparency than traditional banking by leveraging DeFi protocols, with a novel approach to stablecoin deposits and yield generation.\n\nKey Insights\n- InfiniFi has raised $3M in funding, led by Electric Capital, to develop its onchain fractional reserve banking protocol\n- The protocol offers stablecoin deposits with a default 13% APY, with options to earn higher yields by locking up funds\n- Users can specify which DeFi protocols (Aave, Pendle, Ethena) they want their deposits allocated to based on risk tolerance\n- The system creates an iUSD token and uses a stability pool to manage potential mass withdrawals, mimicking traditional banking liquidity management\n- The protocol differentiates itself by providing transparency in fund allocation and returning fees typically kept by traditional banks\n- InfiniFi recently exited stealth mode and is currently available via waitlist"
+}
